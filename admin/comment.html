@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>电影信息管理</title>
+    <link rel="stylesheet" href="/admin/static/layui/css/layui.css">
+    <link rel="stylesheet" href="/admin/static/css/common.css">
+</head>
+<body>
+<div class="layui-col-md12">
+    <!--数据表格开始-->
+    <div class="layui-card">
+        <div class="layui-card-body">
+            <div>
+                <!--<button id="add-btn" class="layui-btn">新增 <i class="layui-icon">&#xe654;</i></button>-->
+                <button id="enable" class="layui-btn">启用</button>
+                <button id="disable" class="layui-btn">禁用</button>
+                <button id="del-btn" class="layui-btn layui-btn-danger">删除 <i class="layui-icon">&#xe640;</i></button>
+            </div>
+            <div class="layui-tab-item layui-show">
+                <table id="comment-list"></table>
+            </div>
+        </div>
+    </div>
+    <!--数据表格结束-->
+</div>
+
+</body>
+
+<script src="/admin/static/layui/layui.js"></script>
+<script>
+    layui.config({base: '/static/'}).extend({common: 'js/common'}).use(['table', 'common', 'element'], function () {
+        var common = layui.common, $ = layui.$, layer = layui.layer, table = layui.table;
+
+        var update_table = function () {
+            table.render({
+                id: 'table',
+                elem: '#comment-list',
+                url: '/api/admin/comment',
+                page: true,
+                cols: [[
+                    {title: '', width: 40, type: 'checkbox', fixed: 'left'},
+                    {field: 'id', title: 'ID', type: 'text', fixed: 'left', sort: true},
+                    {field: 'mid', title: '电影ID', type: 'text', sort: true},
+                    {
+                        title: '用户昵称', type: 'text', sort: true, templet: function (d) {
+                            return d.user.nickname;
+                        }
+                    },
+                    {field: 'score', width: 70, title: '评分', sort: true},
+                    {field: 'content', title: '评论内容', sort: true},
+                    {field: 'ctime', title: '添加时间', sort: true},
+                    {
+                        field: 'status', width: 60, title: '状态', type: 'text', templet: function (d) {
+                            var status = ['禁用', '启用'];
+                            return status[d.status];
+                        }
+                    }
+                ]]
+            });
+
+        };
+
+        update_table();
+        // 启用
+        $('#enable').on('click', function () {
+            var checkeds = table.checkStatus('table');
+            var ids = [];
+            for (var i in checkeds.data) {
+                ids.push(checkeds.data[i].id);
+            }
+            if (checkeds.data.length === 0) {
+                layer.msg("请选择数据！", {icon: 2});
+                return;
+            }
+            ids = ids.join(',');
+            layer.confirm('是否启用选中的标签？', {
+                btn: ['确定', '取消'] //按钮
+            }, function () {
+                $.ajax({
+                    url: '/api/admin/comment',
+                    method: 'PUT',
+                    data: {'ids': ids, 'status': 1},
+                    success: function (resp) {
+                        if (resp.code === 0) {
+                            update_table();
+                            layer.msg(resp.msg, {icon: 1});
+                        } else {
+                            layer.msg(resp.msg, {icon: 2})
+                        }
+                    },
+                    error: function () {
+
+                    }
+                });
+            }, function () {
+            });
+        });
+
+        $('#disable').on('click', function () {
+            var checkeds = table.checkStatus('table');
+            var ids = [];
+            for (var i in checkeds.data) {
+                ids.push(checkeds.data[i].id);
+            }
+            if (checkeds.data.length === 0) {
+                layer.msg("请选择数据！", {icon: 2});
+                return;
+            }
+            ids = ids.join(',');
+            layer.confirm('是否禁用选中的标签？', {
+                btn: ['确定', '取消'] //按钮
+            }, function () {
+                $.ajax({
+                    url: '/api/admin/comment',
+                    method: 'PUT',
+                    data: {'ids': ids, 'status': 0},
+                    success: function (resp) {
+                        if (resp.code === 0) {
+                            update_table();
+                            layer.msg(resp.msg, {icon: 1});
+                        } else {
+                            layer.msg(resp.msg, {icon: -1})
+                        }
+                    },
+                    error: function () {
+
+                    }
+                });
+            }, function () {
+            });
+        });
+
+        $('#del-btn').on('click', function () {
+            var checkeds = table.checkStatus('table');
+            var ids = [];
+            for (var i in checkeds.data) {
+                ids.push(checkeds.data[i].id);
+            }
+            if (checkeds.data.length === 0) {
+                layer.msg("请选择数据！", {icon: 2});
+                return;
+            }
+            ids = ids.join(',');
+            layer.confirm('是否删除选中标签？', {
+                btn: ['确定', '取消'] //按钮
+            }, function () {
+                $.ajax({
+                    url: '/api/admin/comment',
+                    method: 'DELETE',
+                    data: {'ids': ids},
+                    success: function (resp) {
+                        if (resp.code === 0) {
+                            update_table();
+                            layer.msg(resp.msg, {icon: 1});
+                        } else {
+                            layer.msg(resp.msg, {icon: 2})
+                        }
+                    },
+                    error: function () {
+
+                    }
+                });
+            }, function () {
+            });
+        });
+    });
+</script>
+</html>

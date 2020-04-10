@@ -1,0 +1,173 @@
+<div class="container" id="seats">
+    <div class="header layui-bg-black fixed-top">
+        <div class="header-title">选择座位</div>
+    </div>
+    <div class="content" id="seats-view">
+
+    </div>
+    <script id="seats_tpl" type="text/html">
+
+        <div class="movie-info-header-bg" style="background-image: url({{ d.movie.cover }});height: 170px;left:0">
+        </div>
+        <div class="movie-info-header" style="height: 170px">
+            <div class="layui-col-xs4">
+                <img style="height: 100%"
+                     src="{{ d.movie.cover }}">
+            </div>
+            <div class="layui-col-xs8 movie-info-header-right">
+                <div class="movie-info-header-name">
+                    <span>{{ d.movie.name }}</span>
+                </div>
+                <div>
+                    {{# layui.each(d.movie.tags, function(i, o){ }}
+                    <span class="layui-badge layui-bg-blue">{{o}}</span>
+                    {{# }); }}
+                </div>
+                <div>
+                    <span>{{ d.movie.country }}</span> <span>/</span> <span>{{ d.movie.duration }}分钟</span>
+                </div>
+                <div>
+                    <span>{{ d.movie.showtime}}</span> <span>大陆上映</span>
+                </div>
+            </div>
+        </div>
+        <ul class="seats-status">
+            <li>
+                <i class="layui-icon">&#xe66f;</i>可选
+            </li>
+            <li>
+                <i class="layui-icon seats-seat-disable">&#xe66f;</i>不可选
+            </li>
+            <li>
+                <i class="layui-icon seats-seat-selected">&#xe66f;</i>已选
+            </li>
+        </ul>
+        <hr>
+        <div class="seats-view">
+            <div style="text-align: center;width: 100%">
+                <div class="seats-view-screen">
+                    {{d.room.name}}-荧屏
+                </div>
+            </div>
+            <div class="seats-seat">
+                {{# layui.each(d.room.seat_rows.split(','), function(index, item){ }}
+                <div>
+                    <span>{{ index+1 }}</span>
+                    {{# for (var i = 0; i < parseInt(item); i++) { }}
+                    <i data-value="{{index+1}}:{{i+1}}" class="layui-icon seats-seat-enable">&#xe66f;</i>
+                    {{# }; }}
+                </div>
+                {{# }); }}
+            </div>
+            <div class="seats-bottom">
+                <div>
+                    <div>已选座位</div>
+                    <div class="seats-selected">
+
+                    </div>
+                </div>
+                <hr>
+                <div class="seats-confirm">
+                    <div>
+                        <div>
+                            <span id="seats-total">0</span> <span>元</span>
+                        </div>
+                        <span id="seats-price">{{d.price}}</span> x <span id="seats-selected-count">0</span>
+                    </div>
+                    <button id="seats-buy" data-href="/order.html" class="layui-btn layui-bg-orange">确认座位
+                    </button>
+                </div>
+            </div>
+        </div>
+    </script>
+    <script>
+        let schedule = getUrlParam('sid');
+        $('.seats-selected').html('');
+        $.ajax({
+            url: '/api/schedule?sid=' + schedule,
+            method: 'GET',
+            success: function (resp) {
+                if (resp.code === 0) {
+                    let seats_tpl = $('#seats_tpl').html();
+                    let seats_view = document.getElementById('seats-view');
+                    laytpl(seats_tpl).render(resp.data, function (html) {
+                        seats_view.innerHTML = html;
+                    });
+                    $.ajax({
+                        url: '/api/schedule/seats',
+                        data: {'sid': schedule},
+                        method: "GET",
+                        success: function (resp) {
+                            if (resp.code === 0) {
+                                $.each(resp.data, function (index, value) {
+                                    let $disable = $('.seats-seat').find('i[data-value="' + value + '"]');
+                                    $disable.removeClass('seats-seat-enable');
+                                    $disable.addClass('seats-seat-disable');
+                                });
+                            }
+                        }
+                    })
+                } else {
+                    layer.msg(resp.msg)
+                }
+            }
+        });
+        $(document).off('click').on('click', '.seats-seat-enable', function (e) {
+            if ($('.seats-selected').find('span').length < 4) {
+                $(this).removeClass('seats-seat-enable');
+                $(this).addClass('seats-seat-selected');
+                let seat = $(this).data('value');
+                let position = seat.split(':');
+                let item = '<span data-value="' + seat + '">' + position[0] + '排' + position[1] + '座</span> ';
+                $('.seats-selected').append(item);
+                update_total();
+            } else {
+                layer.msg('已达最大购票数')
+            }
+
+        });
+        $(document).on('click', '.seats-seat-selected', function (e) {
+            let seat = $(this).data('value');
+            if ($('.seats-selected').find('span[data-value="' + seat + '"]')) {
+                $(this).addClass('seats-seat-enable');
+                $(this).removeClass('seats-seat-selected');
+                $('.seats-selected').find('span[data-value="' + seat + '"]').remove();
+                update_total();
+            }
+        });
+        $(document).on('click', '.seats-selected>span', function (e) {
+            let $seat = $('i.seats-seat-selected[data-value="' + $(this).data('value') + '"]');
+            $seat.addClass('seats-seat-enable');
+            $seat.removeClass('seats-seat-selected');
+            $(this).remove();
+            update_total();
+        });
+        let update_total = function () {
+            let count = $('.seats-selected').find('span').length;
+            let price = parseFloat($('#seats-price').text());
+            $('#seats-total').text(price * count);
+            $('#seats-selected-count').text(count);
+        };
+        $(document).on('click', '#seats-buy', function (e) {
+            let seats = [];
+            $('.seats-selected').find('span').each(function (index, item) {
+                seats.push($(item).data('value'));
+            });
+            if (seats.length === 0) {
+                layer.msg('请选择座位');
+                return
+            }
+            seats = seats.join(',');
+            $.post('/api/order', {'sid': schedule, 'seats': seats, 'total': $('#seats-total').text()}, function (resp) {
+                if (resp.code === 0) {
+                    layer.msg(resp.msg);
+                    let href = '/order.html?order=' + resp.oid;
+                    Router.navigate(href);
+                    Router.check();
+                } else {
+                    layer.msg(resp.msg)
+                }
+            });
+        });
+    </script>
+</div>

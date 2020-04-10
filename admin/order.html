@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>电影信息管理</title>
+    <link rel="stylesheet" href="/admin/static/layui/css/layui.css">
+    <link rel="stylesheet" href="/admin/static/css/common.css">
+</head>
+<body>
+<div class="layui-col-md12">
+    <!--数据表格开始-->
+    <div class="layui-card">
+        <div class="layui-card-body">
+            <div class="layui-tab-item layui-show">
+                <table id="order-list"></table>
+            </div>
+        </div>
+    </div>
+    <!--数据表格结束-->
+</div>
+
+</body>
+
+<script src="/static/layui/layui.js"></script>
+<script>
+    layui.config({base: '/static/'}).extend({common: 'js/common'}).use(['table', 'common', 'element'], function () {
+        var common = layui.common, table = layui.table;
+
+        var update_table = function () {
+            table.render({
+                id: 'table',
+                elem: '#order-list',
+                url: '/api/admin/order',
+                page: true,
+                cols: [[
+                    {title: '', width: 40, type: 'checkbox', fixed: 'left'},
+                    {field: 'id', title: 'ID', type: 'text', fixed: 'left', sort: true},
+                    {
+                        title: '电影', type: 'text', sort: true, templet: function (d) {
+                            return d.schedule.movie.name;
+                        }
+                    },
+                    {
+                        title: '影厅', type: 'text', sort: true, templet: function (d) {
+                            return d.schedule.room.name;
+                        }
+                    },
+                    {
+                        title: '座位', type: 'text', sort: true, templet: function (d) {
+                            // for (var i = 0; i < d.seats.length; i++) {
+                            //     d.seats[i].replace(/:/, "排");
+                            //     d.seats[i] += '座';
+                            // }
+                            return d.seats.join('，');
+                        }
+                    },
+                    {field: 'ctime', title: '添加时间', sort: true},
+                    {
+                        field: 'status', width: 70, title: '状态', type: 'text', templet: function (d) {
+                            var status = ['待付款', '已付款', '已完成', '已取消', '已退票'];
+                            return status[d.status];
+                        }
+                    }
+                ]]
+            });
+
+        };
+
+        update_table();
+
+    });
+</script>
+</html>

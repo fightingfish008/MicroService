@@ -1,0 +1,83 @@
+<!--个人中心-->
+<div class="container" id="user">
+    <div class="header layui-bg-black">
+        <div class="header-title">我的</div>
+    </div>
+    <a href="/login.html" id="user-login">
+        <div class="user-logined">
+            <div class="user-logo">
+                <img class="circle" src="/static/img/logo.png">
+            </div>
+            <div class="user-nick">
+                <span id="nickname">立即登录</span>
+            </div>
+        </div>
+    </a>
+    <div class="user-items">
+        <a class="user-item" href="/user/order.html">
+            <i class="layui-icon">&#xe657;</i>我的订单
+        </a>
+        <hr>
+        <a class="user-item" href="/user/comment.html">
+            <i class="layui-icon">&#xe606;</i>我的影评
+        </a>
+        <hr>
+        <a class="user-item" href="/user/want.html">
+            <i class="layui-icon">&#xe600;</i>想看的电影
+        </a>
+        <hr>
+        <a class="user-item" href="/user/seen.html">
+            <i class="layui-icon">&#xe60e;</i>看过的电影
+        </a>
+        <hr>
+        <a class="user-item" href="javascript:void(0);" id="logout">
+            <i class="layui-icon">&#xe65b;</i>退出登录
+        </a>
+    </div>
+    <div class="layui-tab layui-tab-brief layui-bg-black fixed-bottom">
+        <ul>
+            <li class="layui-col-xs4">
+                <a class="text-center" href="/home.html">
+                    <i class="layui-icon">&#xe68e;</i>
+                    <span>主页</span>
+                </a>
+            </li>
+            <li class="layui-col-xs4">
+                <a class="text-center" href="/search.html">
+                    <i class="layui-icon">&#xe615;</i>
+                    <span>搜索</span>
+                </a>
+            </li>
+            <li class="layui-col-xs4 selected">
+                <a class="text-center" href="/user.html">
+                    <i class="layui-icon">&#xe612;</i>
+                    <span>我的</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+    <script>
+        info = user_info();
+        if (info) {
+            $('#nickname').text(info.nickname);
+            $('#logout').show();
+        } else {
+            $('#logout').hide();
+        }
+        $('#logout').unbind('click').click(function () {
+            layer.open({
+                content: '确定退出登录吗？',
+                btn: ['我要退出', '我在想想'] //按钮
+                , yes: function (index) {
+                    $('#logout').hide();
+                    $('#user_nick').text('立即登录');
+                    layui.data('micro', {
+                        key: 'token', remove: true
+                    });
+                    layer.msg('退出成功！', {icon: 1});
+                    layer.close(index);
+                }
+            });
+        });
+    </script>
+</div>

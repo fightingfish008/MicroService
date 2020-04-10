@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>用户信息管理</title>
+    <link rel="stylesheet" href="/admin/static/layui/css/layui.css">
+    <link rel="stylesheet" href="/admin/static/css/common.css">
+</head>
+<body>
+<div class="layui-col-md12">
+    <!--数据表格开始-->
+    <div class="layui-card">
+        <div class="layui-card-body">
+            <div>
+                <button id="enable" class="layui-btn">启用</button>
+                <button id="disable" class="layui-btn">禁用</button>
+            </div>
+            <div class="layui-tab-item layui-show">
+                <table id="user-list"></table>
+            </div>
+        </div>
+    </div>
+    <!--数据表格结束-->
+</div>
+
+</body>
+<script src="/admin/static/layui/layui.js"></script>
+<script>
+    layui.config({base: '/static/'}).extend({common: 'js/common'}).use(['table', 'common', 'form', 'element'], function () {
+        var common = layui.common,
+            $ = layui.$,
+            layer = layui.layer,
+            form = layui.form,
+            table = layui.table;
+
+        var update_table = function () {
+            table.render({
+                id: 'table',
+                elem: '#user-list',
+                url: '/api/admin/user',
+                page: true,
+                cols: [[
+                    {title: '', width: 40, type: 'checkbox', fixed: 'left'},
+                    {field: 'id', width: 220, title: 'ID', type: 'text', fixed: 'left', sort: true},
+                    {field: 'phone', title: '手机号', type: 'text', sort: true},
+                    {field: 'nickname', title: '昵称', type: 'text', sort: true},
+                    {field: 'ctime', title: '注册时间', sort: true},
+                    {
+                        field: 'status', title: '状态', type: 'text', templet: function (d) {
+                            var status = ['禁用', '启用'];
+                            return status[d.status];
+                        }
+                    }
+                ]]
+            });
+
+        };
+
+        update_table();
+
+        // 启用
+        $('#enable').on('click', function () {
+            var checkeds = table.checkStatus('table');
+            var ids = [];
+            for (var i in checkeds.data) {
+                ids.push(checkeds.data[i].id);
+            }
+            if (checkeds.data.length === 0) {
+                layer.msg("请选择数据！", {icon: 2});
+                return;
+            }
+            ids = ids.join(',');
+            layer.confirm('是否启用选中的标签？', {
+                btn: ['确定', '取消'] //按钮
+            }, function () {
+                $.ajax({
+                    url: '/api/admin/user',
+                    method: 'PUT',
+                    data: {'ids': ids, 'status': 1},
+                    success: function (resp) {
+                        if (resp.code === 0) {
+                            update_table();
+                            layer.msg('账户已启用', {icon: 1});
+                        } else {
+                            layer.msg('启用失败', {icon: 2})
+                        }
+                    },
+                    error: function () {
+                        layer.msg('无法连接到服务器，请检查后重试！')
+                    }
+                });
+            }, function () {
+            });
+        });
+
+        $('#disable').on('click', function () {
+            var checkeds = table.checkStatus('table');
+            var ids = [];
+            for (var i in checkeds.data) {
+                ids.push(checkeds.data[i].id);
+            }
+            if (checkeds.data.length === 0) {
+                layer.msg("请选择数据！", {icon: 2});
+                return;
+            }
+            ids = ids.join(',');
+            layer.confirm('是否禁用选中的标签？', {
+                btn: ['确定', '取消'] //按钮
+            }, function () {
+                $.ajax({
+                    url: '/api/admin/user',
+                    method: 'PUT',
+                    data: {'ids': ids, 'status': 0},
+                    success: function (resp) {
+                        if (resp.code === 0) {
+                            update_table();
+                            layer.msg('账户已禁用', {icon: 1});
+                        } else {
+                            layer.msg('禁用失败', {icon: -1})
+                        }
+                    },
+                    error: function () {
+                        layer.msg('无法连接到服务器，请检查后重试！')
+                    }
+                });
+            }, function () {
+            });
+        });
+
+    });
+</script>
+</html>

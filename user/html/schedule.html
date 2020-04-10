@@ -1,0 +1,134 @@
+<div class="container" id="schedule">
+    <div class="header layui-bg-black fixed-top">
+        <div class="header-title">排期</div>
+    </div>
+    <div class="content" id="schedule-content">
+    </div>
+    <script id="schedule_tpl" type="text/html">
+        <div class="movie-info-header-bg" style="background-image: url({{ d.movie.cover }});height: 170px;left:0">
+        </div>
+        <div class="movie-info-header" style="height: 170px">
+            <div class="layui-col-xs4">
+                <img style="height: 100%"
+                     src="{{ d.movie.cover }}">
+            </div>
+            <div class="layui-col-xs8 movie-info-header-right">
+                <div class="movie-info-header-name">
+                    <span>{{ d.movie.name }}</span>
+                </div>
+                <div>
+                    {{# layui.each(d.movie.tags, function(i, o){ }}
+                    <span class="layui-badge layui-bg-blue">{{o}}</span>
+                    {{# }); }}
+                </div>
+                <div>
+                    <span>{{ d.movie.country }}</span> <span>/</span> <span>{{ d.movie.duration }}分钟</span>
+                </div>
+                <div>
+                    <span>{{ d.movie.showtime}}</span> <span>大陆上映</span>
+                </div>
+            </div>
+        </div>
+        <div class="schedule-date-list">
+            <div class="layui-tab layui-tab-brief" lay-filter="schedule-date">
+                <ul class="layui-tab-title">
+                    <li class="layui-this layui-col-xs4">今天</li>
+                    <li class="layui-col-xs4">明天</li>
+                    <li class="layui-col-xs4">后天</li>
+                </ul>
+                <div class="layui-tab-content"></div>
+            </div>
+        </div>
+        <div id="schedule-list">
+            <ul id="schedule-date-0">
+                {{# layui.each(d.schedule, function(index, item){ }}
+                {{# if(item.date === getDate(0)){ }}
+                <li>
+                    <div>
+                        <span style="font-size: 1.8rem">{{ item.start_time }}</span>
+                        <span style="font-size: 0.9rem">{{ item.end_time }}散场</span>
+                    </div>
+                    <div>
+                        <span>{{ d.movie.type }}</span>
+                        <span>{{ item.room.name }}</span>
+                    </div>
+                    <div>
+                        <span>{{ item.price }}元</span>
+                    </div>
+                    <div>
+                        <a class="layui-btn layui-bg-red" href="/seats.html?schedule={{ item.id }}">购票</a>
+                    </div>
+                </li>
+                <hr>
+                {{# }; }}
+                {{# }); }}
+            </ul>
+            <ul style="display: none" id="schedule-date-1">
+                {{# layui.each(d.schedule, function(index, item){ }}
+                {{# if(item.date === getDate(1)){ }}
+                <li>
+                    <div>
+                        <span style="font-size: 1.8rem">{{ item.start_time }}</span>
+                        <span style="font-size: 0.9rem">{{ item.end_time }}散场</span>
+                    </div>
+                    <div>
+                        <span>{{ d.movie.type }}</span>
+                        <span>{{ item.room.name }}</span>
+                    </div>
+                    <div>
+                        <span>{{ item.price }}元</span>
+                    </div>
+                    <div>
+                        <a class="layui-btn layui-bg-red" href="/seats.html?schedule={{ item.id }}">购票</a>
+                    </div>
+                </li>
+                <hr>
+                {{# }; }}
+                {{# }); }}
+            </ul>
+            <ul style="display: none" id="schedule-date-2">
+                {{# layui.each(d.schedule, function(index, item){ }}
+                {{# if(item.date === getDate(2)){ }}
+                <li>
+                    <div>
+                        <span style="font-size: 1.8rem">{{ item.start_time }}</span>
+                        <span style="font-size: 0.9rem">{{ item.end_time }}散场</span>
+                    </div>
+                    <div>
+                        <span>{{ d.movie.type }}</span>
+                        <span>{{ item.room.name }}</span>
+                    </div>
+                    <div>
+                        <span>{{ item.price }}元</span>
+                    </div>
+                    <div>
+                        <a class="layui-btn layui-bg-red" href="/seats.html?schedule={{ item.id }}">购票</a>
+                    </div>
+                </li>
+                <hr>
+                {{# }; }}
+                {{# }); }}
+            </ul>
+        </div>
+    </script>
+    <script>
+        let movie = getUrlParam('movie');
+        $.get('/api/schedule?mid=' + movie, function (resp) {
+            if (resp.code === 0) {
+                let schedule_tpl = $('#schedule_tpl').html();
+                let schedule_content = document.getElementById('schedule-content');
+                laytpl(schedule_tpl).render(resp.data, function (html) {
+                    schedule_content.innerHTML = html;
+                });
+            } else {
+                layer.msg(resp.msg)
+            }
+        });
+        element.on('tab(schedule-date)', function (data) {
+            $('#schedule-date-0').hide();
+            $('#schedule-date-1').hide();
+            $('#schedule-date-2').hide();
+            $('#schedule-date-' + data.index).show();
+        });
+    </script>
+</div>

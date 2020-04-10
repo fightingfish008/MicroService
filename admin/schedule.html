@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>电影信息管理</title>
+    <link rel="stylesheet" href="/admin/static/layui/css/layui.css">
+    <link rel="stylesheet" href="/admin/static/css/common.css">
+</head>
+<body>
+<div class="layui-col-md12">
+    <!--数据表格开始-->
+    <div class="layui-card">
+        <div class="layui-card-body">
+            <div>
+                <button id="add-btn" class="layui-btn">新增 <i class="layui-icon">&#xe654;</i></button>
+                <button id="disable" class="layui-btn">禁用</button>
+                <button id="enable" class="layui-btn">启用</button>
+                <button id="del-btn" class="layui-btn layui-btn-danger">删除 <i class="layui-icon">&#xe640;</i></button>
+            </div>
+            <div class="layui-tab-item layui-show">
+                <table id="schedule-list"></table>
+            </div>
+        </div>
+    </div>
+    <!--数据表格结束-->
+</div>
+
+
+<div id="model" data-title="电影排期" style="display: none;padding:20px">
+    <form id="schedule-form" class="layui-form layui-form-pane" action="">
+        <div class="layui-form-item layui-hide">
+            <label class="layui-form-label">ID</label>
+            <div class="layui-input-block">
+                <input type="text" name="id" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">选择电影</label>
+            <div class="layui-input-block">
+                <select name="movie" lay-search lay-verify="required" lay-filter="movie">
+                    <option value="">请选择电影(可搜索)</option>
+                </select>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">选择影厅</label>
+            <div class="layui-input-block">
+                <select name="room" lay-verify="required" lay-filter="room">
+                    <option value="">请选择影厅</option>
+                </select>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">放映日期</label>
+            <div class="layui-input-block">
+                <input type="text" id="date" name="date" required lay-verify="required" placeholder="请输入放映日期"
+                       autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">开始时间</label>
+            <div class="layui-input-block">
+                <input type="text" id="start_time" name="start_time" required lay-verify="required"
+                       placeholder="请输入开始时间" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">结束时间</label>
+            <div class="layui-input-block">
+                <input type="text" id="end_time" name="end_time" required lay-verify="required" placeholder="请输入结束时间"
+                       autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">票价</label>
+            <div class="layui-input-block">
+                <input type="number" name="price" required lay-verify="required" placeholder="请输入票价"
+                       autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">状态</label>
+            <div class="layui-input-block">
+                <select name="status" lay-verify="required">
+                    <option value="0">禁用</option>
+                    <option value="1">启用</option>
+                </select>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-input-block" style="margin-left: 0;text-align: center">
+                <button class="layui-btn" lay-submit lay-filter="schedule">立即提交</button>
+                <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+</body>
+
+<script src="/admin/static/layui/layui.js"></script>
+<script>
+    layui.config({base: '/static/'}).extend({common: 'js/common'}).use(['table', 'common', 'form', 'laydate'], function () {
+        var common = layui.common,
+            $ = layui.$,
+            layer = layui.layer,
+            form = layui.form,
+            laydate = layui.laydate,
+            table = layui.table;
+
+        // 更新table数据
+        var update_table = function () {
+            table.render({
+                id: 'table',
+                elem: '#schedule-list',
+                url: 'http://192.168.2.64:5001/api/admin/schedule',
+                page: true,
+                cols: [[
+                    {title: '', width: 40, type: 'checkbox', fixed: 'left'},
+                    {field: 'id', width: 220, title: 'ID', type: 'text', fixed: 'left', sort: true},
+                    {
+                        title: '电影名称', type: 'text', sort: true, templet: function (d) {
+                            return d.movie.name
+                        }
+                    },
+                    {
+                        title: '影厅名称', type: 'text', sort: true, templet: function (d) {
+                            return d.room.name
+                        }
+                    },
+                    {field: 'price', width: 80, title: '票价', type: 'text', sort: true},
+                    {field: 'date', title: '放映日期', type: 'text', sort: true},
+                    {field: 'start_time', title: '开始时间', type: 'text', sort: true},
+                    {field: 'end_time', title: '结束时间', type: 'text', sort: true},
+                    {field: 'ctime', title: '添加时间', sort: true},
+                    {
+                        field: 'status', width: 70, title: '状态', type: 'text', sort: true, templet: function (d) {
+                            var status = ['禁用', '启用'];
+                            return status[d.status];
+                        }
+                    },
+                    {
+                        title: '', width: 78, fixed: 'right', type: 'button', templet: function (d) {
+                            return '<button data-id="' + d.id +
+                                '" data-mid="' + d.movie.id +
+                                '" data-rid="' + d.room.id +
+                                '" data-price="' + d.price +
+                                '" data-date="' + d.date +
+                                '" data-start_time="' + d.start_time +
+                                '" data-end_time="' + d.end_time +
+                                '" data-status="' + d.status +
+                                '" class="layui-btn layui-btn-sm edit-btn">编辑</button>';
+                        }
+                    }
+                ]]
+            });
+
+        };
+        update_table();
+
+        //处理更新和新增请求
+        form.on('submit(schedule)', function (data) {
+            $.ajax({
+                url: 'http://192.168.2.64:5001/api/admin/schedule' + (data.field.id ? '/' + data.field.id : ''),
+                method: data.field.id ? 'PUT' : 'POST',
+                data: data.field,
+                dataType: 'json',
+                success: function (resp, status, xhr) {
+                    if (resp.code === 0) {
+                        update_table();
+                        layer.msg(resp.msg);
+                    } else {
+                        layer.msg(resp.msg);
+                    }
+                    layer.close(model);
+                },
+                error: function (resp) {
+                    console.log(resp)
+                }
+            });
+            return false; //阻止表单跳转。如果需要表单跳转，去掉这段即可。
+        });
+        //添加
+        $('#add-btn').on('click', function () {
+            model = layer.open({
+                type: 1,
+                area: ['400px', 'auto'],
+                title: '添加' + $('#model').data('title'),
+                fixed: false, //不固定
+                maxmin: true,
+                content: $('#model'),
+                success: function (layero, index) {
+                    document.getElementById("schedule-form").reset();
+                    $('#model').show();
+                },
+                cancel: function (layero, index) {
+                    $('#model').hide();
+                }
+            });
+        });
+        //编辑
+        $(document).on('click', 'button.edit-btn', function () {
+            var that = this;
+            model = layer.open({
+                type: 1,
+                area: ['400px', 'auto'],
+                title: '编辑' + $('#model').data('title'),
+                fixed: false, //不固定
+                maxmin: true,
+                content: $('#model'),
+                success: function (layero, index) {
+                    document.getElementById("schedule-form").reset();
+                    $(layero).find('input[name="id"]').val($(that).data('id'));
+                    $(layero).find('select[name="movie"]').val($(that).data('mid'));
+                    $(layero).find('select[name="room"]').val($(that).data('rid'));
+                    $(layero).find('input[name="price"]').val($(that).data('price'));
+                    $(layero).find('input[name="date"]').val($(that).data('date'));
+                    $(layero).find('input[name="start_time"]').val($(that).data('start_time'));
+                    $(layero).find('input[name="end_time"]').val($(that).data('end_time'));
+                    $(layero).find('select[name="status"]').val($(that).data('status'));
+                    form.render('select');
+                    $('#model').show();
+                    duration = $('option[value=' + $(that).data('mid') + ']').data('duration');
+                    var start_time = $('#start_time').val();
+                    $('#end_time').val(sum_time(start_time, duration));
+                },
+                cancel: function (layero, index) {
+                    $('#model').hide();
+                }
+            });
+        });
+        // 启用
+        $('#enable').on('click', function () {
+            var checkeds = table.checkStatus('table');
+            var ids = [];
+            for (var i in checkeds.data) {
+                ids.push(checkeds.data[i].id);
+            }
+            if (checkeds.data.length === 0) {
+                layer.msg("请选择数据！", {icon: 2});
+                return;
+            }
+            ids = ids.join(',');
+            layer.confirm('是否启用选中的排期？', {
+                btn: ['确定', '取消'] //按钮
+            }, function () {
+                $.ajax({
+                    url: 'http://192.168.2.64:5001/api/admin/schedule',
+                    method: 'PUT',
+                    data: {'ids': ids, 'status': 1},
+                    success: function (resp) {
+                        if (resp.code === 0) {
+                            update_table();
+                            layer.msg(resp.msg, {icon: 1});
+                        } else {
+                            layer.msg(resp.msg, {icon: 2})
+                        }
+                    },
+                    error: function () {
+
+                    }
+                });
+            }, function () {
+            });
+        });
+        // 禁用
+        $('#disable').on('click', function () {
+            var checkeds = table.checkStatus('table');
+            var ids = [];
+            for (var i in checkeds.data) {
+                ids.push(checkeds.data[i].id);
+            }
+            if (checkeds.data.length === 0) {
+                layer.msg("请选择数据！", {icon: 2});
+                return;
+            }
+            ids = ids.join(',');
+            layer.confirm('是否禁用选中的排期？', {
+                btn: ['确定', '取消'] //按钮
+            }, function () {
+                $.ajax({
+                    url: 'http://192.168.2.64:5001/api/admin/schedule',
+                    method: 'PUT',
+                    data: {'ids': ids, 'status': 0},
+                    success: function (resp) {
+                        if (resp.code === 0) {
+                            update_table();
+                            layer.msg(resp.msg, {icon: 1});
+                        } else {
+                            layer.msg(resp.msg, {icon: -1})
+                        }
+                    },
+                    error: function () {
+
+                    }
+                });
+            }, function () {
+            });
+        });
+        // 删除
+        $('#del-btn').on('click', function () {
+            var checkeds = table.checkStatus('table');
+            var ids = [];
+            for (var i in checkeds.data) {
+                ids.push(checkeds.data[i].id);
+            }
+            if (checkeds.data.length === 0) {
+                layer.msg("请选择数据！", {icon: 2});
+                return;
+            }
+            ids = ids.join(',');
+            layer.confirm('是否删除选中排期？', {
+                btn: ['确定', '取消'] //按钮
+            }, function () {
+                $.ajax({
+                    url: 'http://192.168.2.64:5001/api/admin/schedule',
+                    method: 'DELETE',
+                    data: {'ids': ids},
+                    success: function (resp) {
+                        if (resp.code === 0) {
+                            update_table();
+                            layer.msg(resp.msg, {icon: 1});
+                        } else {
+                            layer.msg(resp.msg, {icon: 2})
+                        }
+                    },
+                    error: function () {
+
+                    }
+                });
+            }, function () {
+            });
+        });
+
+        //更新下拉选择框
+        var update_select = function () {
+            $.ajax({
+                url: 'http://192.168.2.64:5001/api/admin/room',
+                method: 'GET',
+                success: function (resp) {
+                    if (resp.code === 0) {
+                        var $room = $('select[name="room"]');
+                        for (var i in resp.data) {
+                            if (resp.data[i].status !== '0') {
+                                var item = resp.data[i];
+                                $room.append('<option value="' + item.id + '">' + item.name + '</option>')
+                            }
+                        }
+                    } else {
+                        layer.msg(resp.msg, {'code': 2})
+                    }
+                    form.render('select');
+                }
+            });
+            $.ajax({
+                url: 'http://192.168.2.64:5001/api/admin/movie',
+                method: 'GET',
+                success: function (resp) {
+                    if (resp.code === 0) {
+                        var $movie = $('select[name="movie"]');
+                        for (var i in resp.data) {
+                            if (resp.data[i].status !== '0') {
+                                var item = resp.data[i];
+                                $movie.append('<option data-duration="' + item.duration + '" value="' + item.id + '">' + item.name + '</option>')
+                            }
+                        }
+                    } else {
+                        layer.msg(resp.msg, {'code': 2})
+                    }
+                    form.render('select');
+                }
+            });
+        };
+        update_select();
+
+        var duration = '';
+        form.on('select(movie)', function (data) {
+            duration = $('option[value=' + data.value + ']').data('duration');
+            var start_time = $('#start_time').val();
+            $('#end_time').val(sum_time(start_time, duration));
+
+        });
+
+        laydate.render({
+            elem: '#date' //指定元素
+        });
+    });
+
+    var sum_time = function (t1, dura) {
+        var parseTime = function (time) {
+            var temp = time.split(':');
+            time = {
+                h: parseInt(temp[0]),
+                m: parseInt(temp[1])
+            };
+            return time;
+        };
+        var formatTime = function (time) {
+            if (time.h < 10) {
+                h = '0' + time.h.toString()
+            }
+            if (time.m < 10) {
+                m = '0' + time.m.toString()
+            }
+            return h + ":" + m;
+        };
+        time1 = parseTime(t1);
+        time2 = {
+            h: parseInt(dura / 60),
+            m: dura % 60
+        };
+        var m = (time1.m + time2.m);
+        var h = (time1.h + time2.h);
+        if (m > 59) {
+            h = h + 1;
+            m = m % 60;
+            if (h > 23) {
+                h = h % 24
+            }
+        }
+        return formatTime({h: h, m: m})
+    }
+
+</script>
+</html>

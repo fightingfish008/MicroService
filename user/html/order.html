@@ -1,0 +1,124 @@
+<div class="container" id="order">
+    <div class="header layui-bg-black fixed-top">
+        <div class="header-title">订单详情</div>
+    </div>
+    <div class="content" id="order-view">
+
+    </div>
+    <script id="order_tpl" type="text/html">
+        <!--<div class="order-pay-timer">-->
+        <!--<span>支付剩余时间：</span><span id="order-pay-timer">15:00</span>-->
+        <!--</div>-->
+        <hr>
+        <div>
+            <div style="font-size: 2.3rem;">
+                <span>{{ d.schedule.movie.name }}</span> <span
+                    class="layui-badge layui-bg-blue">{{ d.schedule.movie.type }}</span>
+            </div>
+            <div>
+                <span>{{ d.schedule.date }}</span> <span>{{ d.schedule.start_time }}</span> <span>{{ d.schedule.room.name }}</span>
+            </div>
+            <div>
+                {{# layui.each(d.seats, function(index, item){
+                var position = item.split(':');
+                }}
+                <span>{{ position[0] }}排{{ position[1] }}座</span>,
+                {{# }); }}
+            </div>
+            <hr>
+            <div style="display: flex;justify-content: space-between">
+                <span>票价</span>
+                <span style="font-size:2rem;">{{ d.total }}元</span>
+            </div>
+            <hr>
+            <div>
+                <span>手机号</span>
+                <span style="font-size:2.5rem;">{{ user_info().phone}}</span>
+            </div>
+        </div>
+        {{# if(d.status === 0 ){ }}
+        <div style="position: absolute;left: 0;bottom: 0;width: 100%;border-top: gray solid 1px">
+            <div style="text-align: right;padding: 15px">
+                <span>还需支付：</span>
+                <span style="color: red;font-size: 3rem;">{{d.total}}</span><span>元</span>
+            </div>
+            <button class="layui-btn layui-bg-orange " id="order_pay"
+                    style="margin:10px 2%;font-size:2rem;width: 96%;height: 55px">
+                确认支付
+            </button>
+        </div>
+        {{# } else if(d.status === 1){}}
+        <div style="position: absolute;left: 0;bottom: 0;width: 100%;border-top: gray solid 1px">
+            <button class="layui-btn layui-bg-orange" id="order_cancel"
+                    style="margin:10px 2%;font-size:2rem;width: 96%;height: 55px">
+                退票
+            </button>
+        </div>
+        {{# } else if(d.status === 2){}}
+        <div style="position: absolute;left: 0;bottom: 0;width: 100%;border-top: gray solid 1px">
+            <button class="layui-btn layui-btn-disabled"
+                    style="margin:10px 2%;font-size:2rem;width: 96%;height: 55px">
+                已完成
+            </button>
+        </div>
+        {{# } else if(d.status === 3){}}
+        <div style="position: absolute;left: 0;bottom: 0;width: 100%;border-top: gray solid 1px">
+            <button class="layui-btn layui-btn-disabled"
+                    style="margin:10px 2%;font-size:2rem;width: 96%;height: 55px">
+                已取消
+            </button>
+        </div>
+        {{# } else if(d.status === 4){}}
+        <div style="position: absolute;left: 0;bottom: 0;width: 100%;border-top: gray solid 1px">
+            <button class="layui-btn layui-btn-disabled"
+                    style="margin:10px 2%;font-size:2rem;width: 96%;height: 55px">
+                已退票
+            </button>
+        </div>
+        {{# } }}
+    </script>
+    <script>
+        let oid = getUrlParam('order');
+
+        function fresh() {
+            $.get('/api/order?oid=' + oid, function (resp) {
+                if (resp.code === 0) {
+                    let order_tpl = $('#order_tpl').html();
+                    let order_view = document.getElementById('order-view');
+                    laytpl(order_tpl).render(resp.data, function (html) {
+                        order_view.innerHTML = html;
+                    });
+                } else
+                    layer.msg(resp.msg)
+            })
+        }
+
+        fresh();
+        $('#order_pay').off('click').on('click', function (e) {
+            layer.open({
+                content: '确定支付该订单吗？',
+                btn: ['确定', '我再想想'],//按钮
+                yes: function (index) {
+                    $.post('/api/order/pay', {'oid': oid}, function (resp) {
+                        if (resp.code === 0) {
+                            layer.msg(resp.msg);
+                            fresh();
+                        } else {
+                            layer.msg(resp.msg);
+                        }
+                    });
+                }
+            });
+        });
+        $('#order_cancel').off('click').on('click', function (e) {
+            $.post('/api/order/cancel', {'oid': oid}, function (resp) {
+                if (resp.code === 0) {
+                    layer.msg(resp.msg);
+                    fresh();
+                } else {
+                    layer.msg(resp.msg);
+                }
+            })
+        });
+    </script>
+</div>

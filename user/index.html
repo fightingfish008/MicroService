@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns="">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport"
+          content="width=device-width,initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+    <title>主页</title>
+    <link href="/user/static/css/layui.css" rel="stylesheet">
+    <link href="/user/static/css/layui.mobile.css" rel="stylesheet">
+    <link href="/user/static/css/common.css" rel="stylesheet">
+    <link href="/user/static/css/movie.css" rel="stylesheet">
+</head>
+<script type="text/javascript">
+    var phoneWidth = parseInt(window.screen.width);
+    var phoneScale = phoneWidth / 480;
+    if (/Android|webOS|iPhone|iPod|BlackBerry/i.test(navigator.userAgent)) {
+        document.write('<meta name="viewport" content="width=480, minimum-scale = ' + phoneScale + ', maximum-scale = ' + phoneScale + '">');
+    } else {
+        document.write('<meta name="viewport" content="width=480, user-scalable=no">');
+    }
+</script>
+<body>
+<div id="main"></div>
+<script src="/user/static/layui.all.js"></script>
+<script src="/user/static/js/router.js"></script>
+<script src="/user/static/js/tools.js"></script>
+<script src="/user/static/js/movie.js"></script>
+
+</body>
+
+</html>

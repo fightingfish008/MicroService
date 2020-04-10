@@ -1,0 +1,71 @@
+<div class="container" id="user-want">
+    <div class="header layui-bg-black">
+        <div class="header title">想看的电影</div>
+    </div>
+    <div id="user_want_movies">
+
+    </div>
+    <script id="movie_want_tpl" type="text/html">
+        <ul>
+            {{# layui.each(d, function(index, item){ }}
+            <li style="padding: 10px 0 0 0">
+                <a class="movie-item-a" href="/movie.html?movie={{ item.id }}">
+                    <div class="movie-item">
+                        <div class="layui-col-xs3 movie-item-img">
+                            <img src="{{ item.cover }}">
+                        </div>
+                        <div class="layui-col-xs7">
+                            <div class="movie-item-title"><span>{{item.name}}</span>
+                                {{# if(item.type != ""){ }}
+                                <span class="layui-badge layui-bg-black circle">{{item.type}}</span>
+                                {{# } }}
+                            </div>
+                            <div>
+                                <span>想看：</span>
+                                <span style="color: orangered">{{item.want}}</span>
+                            </div>
+                            <div>
+                                <span>导演：{{item.director}}</span>
+                            </div>
+                            <div>
+                                <span>主演：{{item.players}}</span>
+                            </div>
+                            <div>
+                                <span>标签：</span>
+                                {{# layui.each(item.tags, function(i, o){ }}
+                                <span class="layui-badge layui-bg-gray">{{o}}</span>
+                                {{# }); }}
+                            </div>
+                        </div>
+                    </div>
+                </a>
+                <hr>
+            </li>
+            {{# }); }}
+            {{# if(d.length === 0){ }}
+            {{# } }}
+        </ul>
+    </script>
+    <script>
+        flow.load({
+            elem: '#user_want_movies',
+            isAuto: true,
+            done: function (page, next) {
+                $.get('/api/user/want?page=' + page, function (res) {
+                    if (res.code === 0) {
+                        let movie_comment_tpl = movie_want_tpl.innerHTML;
+                        laytpl(movie_comment_tpl).render(resp.data, function (html) {
+                            next(html, page < 1);
+                        });
+                    }
+                });
+            }
+        });
+        $('.user_seen_comment').unbind('click').click(function (e) {
+            let href = $(this).data('href');
+            Router.navigate(href);
+            Router.check();
+            return false;
+        })
+    </script>
+</div>

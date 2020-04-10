@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns="">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport"
+          content="width=device-width,initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>主页</title>
+    <link href="/static/css/layui.css" rel="stylesheet">
+    <!--<link href="http://static-1252672422.file.myqcloud.com/static/css/layui.css" rel="stylesheet">-->
+    <link href="/static/css/layui.mobile.css" rel="stylesheet">
+    <!--<link href="http://static-1252672422.file.myqcloud.com/static/css/layui.mobile.css" rel="stylesheet">-->
+    <link href="/static/css/movie.css" rel="stylesheet">
+    <!--<link href="http://static-1252672422.file.myqcloud.com/static/css/movie.css" rel="stylesheet">-->
+</head>
+
+<script type="text/javascript">
+    var phoneWidth = parseInt(window.screen.width);
+    var phoneScale = phoneWidth / 480;
+    var ua = navigator.userAgent;
+    if (/Android (d+.d+)/.test(ua)) {
+        var version = parseFloat(RegExp.$1);
+        if (version > 2.3) {
+            document.write('<meta name="viewport" content="width=480, minimum-scale = ' + phoneScale + ', maximum-scale = ' + phoneScale + '">');
+        } else {
+            document.write('<meta name="viewport" content="width=480">');
+        }
+    } else {
+        document.write('<meta name="viewport" content="width=480, user-scalable=no">');
+    }
+
+</script>
+<body>
+<!--主页-->
+<div class="home-container container transition" id="home" style="display: none">
+    <div class="layui-tab layui-tab-brief layui-bg-black no-padding no-margin fixed-top" lay-filter="top-tab">
+        <ul>
+            <li class="layui-this layui-col-xs6">
+                <a class="text-center" href="/home.html#playing">正在热映</a>
+            </li>
+            <li class="layui-col-xs6">
+                <a class="text-center" href="/home.html#upcoming">即将上映</a>
+            </li>
+
+        </ul>
+    </div>
+    <div class="play">
+        <!--正在热映-->
+        <div id="playing">
+            <!--<div class="layui-carousel" id="poster">-->
+            <!--<div carousel-item>-->
+            <!--<div>-->
+            <!--<img class="img-full" src="/static/img/poster6.jpg">-->
+            <!--</div>-->
+            <!--<div>-->
+            <!--<img class="img-full" src="/static/img/poster2.jpg">-->
+            <!--</div>-->
+            <!--<div>-->
+            <!--<img class="img-full" src="/static/img/poster3.jpg">-->
+            <!--</div>-->
+            <!--<div>-->
+            <!--<img class="img-full" src="/static/img/poster4.jpg">-->
+            <!--</div>-->
+            <!--<div>-->
+            <!--<img class="img-full" src="/static/img/poster5.jpg">-->
+            <!--</div>-->
+            <!--</div>-->
+            <!--</div>-->
+
+            <div id="playing-view"></div>
+
+        </div>
+        <!--即将上映-->
+        <div id="upcoming" style="display: none">
+            <div id="upcoming-view"></div>
+        </div>
+    </div>
+</div>
+<script id="movie_list" type="text/html">
+    <ul>
+        {{# layui.each(d, function(index, item){ }}
+        <li style="padding: 10px 0 0 0">
+            <a class="movie-item-a" href="/movie.html?movie={{ item.id }}">
+                <div class="movie-item">
+                    <div class="layui-col-xs3 movie-item-img">
+                        <img src="{{ item.cover }}">
+                    </div>
+                    <div class="layui-col-xs7">
+                        <div class="movie-item-title"><span>{{item.name}}</span>
+                            {{# if(item.type != ""){ }}
+                            <span class="layui-badge layui-bg-black circle">{{item.type}}</span>
+                            {{# } }}
+                        </div>
+                        {{# if(item.status===3){}}
+                        <div>
+                            <span>想看：</span>
+                            <span style="color: orangered">{{item.want}}</span>
+                        </div>
+                        {{# }else if (item.status===2){ }}
+                        <div>
+                            <span>观众评分：</span>
+                            <span style="color: orangered">{{item.score}}</span>
+                        </div>
+                        {{# } }}
+                        <div>
+                            <span>导演：{{item.director}}</span>
+                        </div>
+                        <div>
+                            <span>主演：{{item.players}}</span>
+                        </div>
+                        <div>
+                            <span>标签：</span>
+                            {{# layui.each(item.tags, function(i, o){ }}
+                            <span class="layui-badge layui-bg-gray">{{o}}</span>
+                            {{# }); }}
+                        </div>
+                    </div>
+
+                    {{# if(item.status===3){}}
+                    <div class="layui-col-xs2 movie-item-buy">
+                        <button id="{{ item.id }}" class="layui-btn layui-bg-red layui-btn-normal want">想看
+                        </button>
+                    </div>
+                    {{# }else if (item.status===2){ }}
+                    <div class="layui-col-xs2 movie-item-buy">
+                        <button id="{{ item.id }}" class="layui-btn layui-btn-normal buy">购票</button>
+                    </div>
+                    {{# } }}
+
+
+                </div>
+            </a>
+            <hr>
+        </li>
+        {{# }); }}
+        {{# if(d.length === 0){ }}
+        {{# } }}
+    </ul>
+</script>
+<!--搜索页面-->
+<div class="search-container container transition" id="search" style="display: none">
+    <div class="header layui-bg-black fixed-top">
+        <div class="header-title" id="search-title">搜索</div>
+        <input id="search-input" autocomplete="on" class="md-input hide" type="text" placeholder="搜索">
+        <div class="header-title header-title-right float-right" id="search-button">
+            <i style="font-size: 2rem;" class="layui-icon">&#xe615;</i>
+        </div>
+    </div>
+    <div class="content">
+        <div id="search-comments">
+            <div style="padding:10px;font-size: 2rem;margin: 0 -15px;border-bottom: #333 solid 1px;">
+                <span>热门评论</span>
+            </div>
+            <div id="hotest-comments-list">
+
+            </div>
+        </div>
+        <div id="search-movies">
+
+        </div>
+    </div>
+    <script id="search_comment_tpl" type="text/html">
+        {{# layui.each(d, function(index, item){ }}
+        <div style="padding: 5px 0">
+            <div class="layui-col-xs2">
+                <a href="/movie.html?movie={{ item.movie.id }}">
+                    <img style="width: 100%" src="{{ item.movie.cover }}">
+                    <div style="font-size: 1.3rem">{{item.movie.name}}</div>
+                </a>
+            </div>
+            <div class="layui-col-xs10 padding-015">
+                <div class="movie-item-title"><span>{{ item.user.nickname }}</span>
+                </div>
+                <div class="rate" data-max="10" data-value="{{ item.score }}">
+                </div>
+                <div>
+                    <p>{{ item.content }}</p>
+                </div>
+                <div class="movie-comments-bottom">
+                    <span style="font-size: 1rem">{{ item.ctime }}</span>
+                    <div class="support" data-cid="{{item.id}}">
+                        <i class="layui-icon">&#xe6c6;</i><span>{{ item.support }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <hr>
+        {{# }); }}
+    </script>
+</div>
+<!--用户中心-->
+<div class="user-container container transition" id="user" style="display: none;">
+    <div class="header layui-bg-black">
+        <div class="header-title">我的</div>
+    </div>
+    <a href="/login.html" id="user-login">
+        <div class="user-logined">
+            <div class="user-logo">
+                <img class="circle" src="/static/img/logo.png">
+            </div>
+            <div class="user-nick">
+                <span id="user_nick">立即登录</span>
+            </div>
+        </div>
+    </a>
+    <div class="user-items">
+        <a class="user-item" href="/user/order.html">
+            <i class="layui-icon">&#xe657;</i>我的订单
+        </a>
+        <!--<hr>-->
+        <!--<a class="user-item" href="/user/comment.html">-->
+        <!--<i class="layui-icon">&#xe606;</i>我的影评-->
+        <!--</a>-->
+        <hr>
+        <a class="user-item" href="/user/want.html">
+            <i class="layui-icon">&#xe600;</i>想看的电影
+        </a>
+        <hr>
+        <a class="user-item" href="/user/seen.html">
+            <i class="layui-icon">&#xe60e;</i>看过的电影
+        </a>
+        <hr>
+        <a class="user-item" href="javascript:void(0);" id="logout">
+            <i class="layui-icon">&#xe65b;</i>退出登录
+        </a>
+
+    </div>
+
+</div>
+<!--我的订单-->
+<div class="container" id="user-order" style="display: none;">
+    <div class="header layui-bg-black fixed-top">
+        <div class="header-title">我的订单</div>
+    </div>
+    <div id="user_orders" class="content">
+
+    </div>
+    <script id="user_orders_tpl" type="text/html">
+        <ul>
+            {{# layui.each(d, function(index, item){ }}
+            <li style="padding: 10px 0 0 0">
+                <a class="movie-item-a" href="/order.html?order={{ item.id }}">
+                    <div class="movie-item">
+                        <div class="layui-col-xs3 movie-item-img">
+                            <img src="{{ item.schedule.movie.cover }}">
+                        </div>
+                        <div class="layui-col-xs7"
+                             style="display: flex;margin-right: 15px;flex-direction: column;justify-content: center;">
+                            <div class="movie-item-title">
+                                <span>{{item.schedule.movie.name}}&nbsp;</span>
+                                <span>{{item.seats.length}}</span>
+                                <span>张</span>
+                            </div>
+
+                            <div style="margin: 10px 0">
+                                <span>{{item.schedule.date}}</span> <span>{{item.schedule.start_time}}</span>
+                            </div>
+
+                            <div>
+                                <span>{{ item.schedule.room.name }}</span>
+                                {{# layui.each(item.seats, function(index, item){
+                                var position = item.split(':');
+                                }}
+                                <span>{{ position[0] }}排{{ position[1] }}座</span>,
+                                {{# }); }}
+                            </div>
+                        </div>
+                        <div class="layui-col-xs2 movie-item-buy" style="margin-right: 0">
+                            {{# if(item.status === 0 ){ }}
+                            <button data-oid="{{ item.id }}" class="layui-btn layui-bg-orange user_order_pay">付款
+                            </button>
+                            {{# }else if (item.status===1){ }}
+                            <button data-oid="{{ item.id }}" class="layui-btn layui-bg-orange user_order_unsubscribe">
+                                退票
+                            </button>
+                            {{# }else if (item.status===2){ }}
+                            {{# }else if (item.status===3){ }}
+                            {{# }else if (item.status===4){ }}
+                            {{# } }}
+                        </div>
+                    </div>
+                    <hr>
+                    <div>
+                        <span>总价：</span>
+                        <span>{{ item.total }}</span>
+                        <span>元</span>
+                        {{# if(item.status === 0 ){ }}
+                        <span class="cancel_order" data-oid="{{ item.id }}"
+                              style="color:orangered;float: right">取消</span>
+                        {{# }else if (item.status===1){ }}
+                        <span style="color:gray;float: right">已付款</span>
+                        {{# }else if (item.status===2){ }}
+                        <span style="color:gray;float: right">已完成</span>
+                        {{# }else if (item.status===3){ }}
+                        <span style="color:gray;float: right">已取消</span>
+                        {{# }else if (item.status===4){ }}
+                        <span style="color:gray;float: right">已退票</span>
+                        {{# } }}
+                    </div>
+                </a>
+                <hr>
+            </li>
+            {{# }); }}
+            {{# if(d.length === 0){ }}
+            {{# } }}
+        </ul>
+    </script>
+</div>
+<!--我的评论-->
+<div class="container" id="user-comment" style="display: none;">
+    <div class="header layui-bg-black">
+        <div class="header-title">我的评论</div>
+    </div>
+    <div id="user_comments">
+
+    </div>
+    <script id="user_comment_tpl" type="text/html">
+        {{# layui.each(d, function(index, item){ }}
+        <div style="padding: 5px 0">
+            <div class="layui-col-xs2">
+                <img class="circle" style="width: 100%" src="/favicon.ico">
+            </div>
+            <div class="layui-col-xs10 padding-015">
+                <div class="movie-item-title"><span>{{ item.user.nickname }}</span>
+                </div>
+                <div class="rate" data-max="10" data-value="{{ item.score }}">
+                </div>
+                <div>
+                    <p>{{ item.content }}</p>
+                </div>
+                <div class="movie-comments-bottom">
+                    <span>{{ item.ctime }}</span>
+                    <div class="support" data-cid="{{item.id}}">
+                        <i class="layui-icon">&#xe6c6;</i><span>{{ item.support }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <hr>
+        {{# }); }}
+    </script>
+</div>
+<!--看过的电影-->
+<div class="container" id="user-seen" style="display: none;">
+    <div class="header layui-bg-black">
+        <div class="header-title">看过的电影</div>
+    </div>
+    <div id="user_seen_movies">
+
+    </div>
+
+    <script id="movie_seen_tpl" type="text/html">
+        <ul>
+            {{# layui.each(d, function(index, item){ }}
+            <li style="padding: 10px 0 0 0">
+                <a class="movie-item-a" href="/movie.html?movie={{ item.id }}">
+                    <div class="movie-item">
+                        <div class="layui-col-xs3 movie-item-img">
+                            <img src="{{ item.cover }}">
+                        </div>
+                        <div class="layui-col-xs7">
+                            <div class="movie-item-title"><span>{{item.name}}</span>
+                                {{# if(item.type != ""){ }}
+                                <span class="layui-badge layui-bg-black circle">{{item.type}}</span>
+                                {{# } }}
+                            </div>
+                            <div>
+                                <span>观众评分：</span>
+                                <span style="color: orangered">{{item.score}}</span>
+                            </div>
+                            <div>
+                                <span>导演：{{item.director}}</span>
+                            </div>
+                            <div>
+                                <span>主演：{{item.players}}</span>
+                            </div>
+                            <div>
+                                <span>标签：</span>
+                                {{# layui.each(item.tags, function(i, o){ }}
+                                <span class="layui-badge layui-bg-gray">{{o}}</span>
+                                {{# }); }}
+                            </div>
+                        </div>
+                        <div class="layui-col-xs2 movie-item-buy">
+                            <button data-href="/comment.html?movie={{ item.id }}"
+                                    class="layui-btn layui-bg-orange user_seen_comment">评论
+                            </button>
+                        </div>
+                    </div>
+                </a>
+                <hr>
+            </li>
+            {{# }); }}
+            {{# if(d.length === 0){ }}
+            {{# } }}
+        </ul>
+    </script>
+</div>
+<!--想看的电影-->
+<div class="container" id="user-want" style="display: none;">
+    <div class="header layui-bg-black">
+        <div class="header-title">想看的电影</div>
+    </div>
+    <div id="user_want_movies">
+
+    </div>
+    <script id="movie_want_tpl" type="text/html">
+        <ul>
+            {{# layui.each(d, function(index, item){ }}
+            <li style="padding: 10px 0 0 0">
+                <a class="movie-item-a" href="/movie.html?movie={{ item.id }}">
+                    <div class="movie-item">
+                        <div class="layui-col-xs3 movie-item-img">
+                            <img src="{{ item.cover }}">
+                        </div>
+                        <div class="layui-col-xs7">
+                            <div class="movie-item-title"><span>{{item.name}}</span>
+                                {{# if(item.type != ""){ }}
+                                <span class="layui-badge layui-bg-black circle">{{item.type}}</span>
+                                {{# } }}
+                            </div>
+                            <div>
+                                <span>想看：</span>
+                                <span style="color: orangered">{{item.want}}</span>
+                            </div>
+                            <div>
+                                <span>导演：{{item.director}}</span>
+                            </div>
+                            <div>
+                                <span>主演：{{item.players}}</span>
+                            </div>
+                            <div>
+                                <span>标签：</span>
+                                {{# layui.each(item.tags, function(i, o){ }}
+                                <span class="layui-badge layui-bg-gray">{{o}}</span>
+                                {{# }); }}
+                            </div>
+                        </div>
+                    </div>
+                </a>
+                <hr>
+            </li>
+            {{# }); }}
+            {{# if(d.length === 0){ }}
+            {{# } }}
+        </ul>
+    </script>
+</div>
+<!--电影详情-->
+<div class="container" id="movie" style="display: none;">
+    <div class="header layui-bg-black fixed-top">
+        <div class="header-title">电影详情</div>
+    </div>
+    <div class="content">
+        <div id="movie-info">
+        </div>
+        <script id="movie_info_tpl" type="text/html">
+            <div class="movie-info-header-bg" style="background-image: url({{ d.cover }});">
+            </div>
+            <div class="movie-info-header">
+                <div class="layui-col-xs4">
+                    <img class="img-full"
+                         src="{{ d.cover }}">
+                </div>
+                <div class="layui-col-xs8 movie-info-header-right">
+                    <div class="movie-info-header-name">
+                        <span>{{ d.name }}</span>
+                    </div>
+                    <div class="movie-info-header-want">
+                        <span>{{ d.want }}</span> <span>人想看</span>
+                    </div>
+                    <div>
+                        {{# layui.each(d.tags, function(i, o){ }}
+                        <span class="layui-badge layui-bg-gray">{{o}}</span>
+                        {{# }); }}
+                    </div>
+                    <div>
+                        <span>{{ d.country }}</span> <span>/</span> <span>{{ d.duration }}分钟</span>
+                    </div>
+                    <div>
+                        <span>{{ d.showtime}}</span> <span>大陆上映</span>
+                    </div>
+                </div>
+            </div>
+            <div style="display: flex;justify-content: space-evenly">
+                <button data-want_mid="{{ d.id }}" class="layui-btn layui-bg-blue layui-col-xs5">想看</button>
+                <a id="movie_score" href="/comment.html?movie={{ d.id }}" class="layui-btn layui-bg-blue layui-col-xs5">评分</a>
+            </div>
+            <hr>
+            <div class="movie-info-description">
+                <p id="description">
+                    {{ d.description}}
+                </p>
+                <div>
+                    <i class="layui-icon" style="font-size: 1.3rem;">&#xe61a;</i>
+                </div>
+            </div>
+        </script>
+
+        <hr>
+        <div class="movie-comments">
+            <div class="movie-comments-header">
+                <span>观众热评</span>
+                <a id="write-comment" class="layui-btn circle">写短评</a>
+            </div>
+            <hr>
+            <div id="movie-comments-list">
+
+            </div>
+        </div>
+        <a id="movie-buy" class="movie-buy" href="/schedule.html">
+            立即购票
+        </a>
+    </div>
+    <script id="comment_tpl" type="text/html">
+        {{# layui.each(d, function(index, item){ }}
+        <div style="padding: 5px 0">
+            <div class="layui-col-xs2">
+                <img class="circle" style="width: 100%" src="/favicon.ico">
+            </div>
+            <div class="layui-col-xs10 padding-015">
+                <div class="movie-item-title"><span>{{ item.user.nickname }}</span>
+                </div>
+                <div class="rate" data-max="10" data-value="{{ item.score }}">
+                </div>
+                <div>
+                    <p>{{ item.content }}</p>
+                </div>
+                <div class="movie-comments-bottom">
+                    <span style="font-size: 1rem">{{ item.ctime }}</span>
+                    <div class="support" data-cid="{{item.id}}">
+                        <i class="layui-icon">&#xe6c6;</i><span>{{ item.support }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <hr>
+        {{# }); }}
+    </script>
+</div>
+<!--写评分-->
+<div class="container" id="comment" style="display: none;">
+    <div class="header layui-bg-black fixed-top">
+        <div class="header-title">评分</div>
+    </div>
+    <div class="content comment-content">
+        <div id="comment-score">
+            <div>
+                <span id="comment-rate-score">10</span><span>分</span>
+            </div>
+            <div>
+                <span>一般般</span>
+            </div>
+        </div>
+        <div id="comment-rate">
+        </div>
+        <div class="layui-form-item login-textarea">
+            <textarea id="comment-content" name="content" required lay-verify="required" placeholder="请输入评论内容"
+                      class="layui-textarea"></textarea>
+        </div>
+        <div>
+            <button id="add-comment" class="layui-btn layui-bg-orange" style="width: 100%">提交</button>
+        </div>
+    </div>
+
+</div>
+<!--排期详情-->
+<div class="container" id="schedule" style="display: none;">
+    <div class="header layui-bg-black fixed-top">
+        <div class="header-title">排期</div>
+    </div>
+    <div class="content" id="schedule-content">
+    </div>
+    <script id="schedule_tpl" type="text/html">
+        <div class="movie-info-header-bg" style="background-image: url({{ d.movie.cover }});height: 170px;left:0">
+        </div>
+        <div class="movie-info-header" style="height: 170px">
+            <div class="layui-col-xs4">
+                <img style="height: 100%"
+                     src="{{ d.movie.cover }}">
+            </div>
+            <div class="layui-col-xs8 movie-info-header-right">
+                <div class="movie-info-header-name">
+                    <span>{{ d.movie.name }}</span>
+                </div>
+                <div>
+                    {{# layui.each(d.movie.tags, function(i, o){ }}
+                    <span class="layui-badge layui-bg-blue">{{o}}</span>
+                    {{# }); }}
+                </div>
+                <div>
+                    <span>{{ d.movie.country }}</span> <span>/</span> <span>{{ d.movie.duration }}分钟</span>
+                </div>
+                <div>
+                    <span>{{ d.movie.showtime}}</span> <span>大陆上映</span>
+                </div>
+            </div>
+        </div>
+        <div class="schedule-date-list">
+            <div class="layui-tab layui-tab-brief" lay-filter="schedule-date">
+                <ul class="layui-tab-title">
+                    <li class="layui-this layui-col-xs4">今天</li>
+                    <li class="layui-col-xs4">明天</li>
+                    <li class="layui-col-xs4">后天</li>
+                </ul>
+                <div class="layui-tab-content"></div>
+            </div>
+        </div>
+        <div id="schedule-list">
+            <ul id="schedule-date-0">
+                {{# layui.each(d.schedule, function(index, item){ }}
+                {{# if(item.date === getDate(0)){ }}
+                <li>
+                    <div>
+                        <span style="font-size: 1.8rem">{{ item.start_time }}</span>
+                        <span style="font-size: 0.9rem">{{ item.end_time }}散场</span>
+                    </div>
+                    <div>
+                        <span>{{ d.movie.type }}</span>
+                        <span>{{ item.room.name }}</span>
+                    </div>
+                    <div>
+                        <span>{{ item.price }}元</span>
+                    </div>
+                    <div>
+                        <a class="layui-btn layui-bg-red" href="/seats.html?schedule={{ item.id }}">购票</a>
+                    </div>
+                </li>
+                <hr>
+                {{# }; }}
+                {{# }); }}
+            </ul>
+            <ul style="display: none" id="schedule-date-1">
+                {{# layui.each(d.schedule, function(index, item){ }}
+                {{# if(item.date === getDate(1)){ }}
+                <li>
+                    <div>
+                        <span style="font-size: 1.8rem">{{ item.start_time }}</span>
+                        <span style="font-size: 0.9rem">{{ item.end_time }}散场</span>
+                    </div>
+                    <div>
+                        <span>{{ d.movie.type }}</span>
+                        <span>{{ item.room.name }}</span>
+                    </div>
+                    <div>
+                        <span>{{ item.price }}元</span>
+                    </div>
+                    <div>
+                        <a class="layui-btn layui-bg-red" href="/seats.html?schedule={{ item.id }}">购票</a>
+                    </div>
+                </li>
+                <hr>
+                {{# }; }}
+                {{# }); }}
+            </ul>
+            <ul style="display: none" id="schedule-date-2">
+                {{# layui.each(d.schedule, function(index, item){ }}
+                {{# if(item.date === getDate(2)){ }}
+                <li>
+                    <div>
+                        <span style="font-size: 1.8rem">{{ item.start_time }}</span>
+                        <span style="font-size: 0.9rem">{{ item.end_time }}散场</span>
+                    </div>
+                    <div>
+                        <span>{{ d.movie.type }}</span>
+                        <span>{{ item.room.name }}</span>
+                    </div>
+                    <div>
+                        <span>{{ item.price }}元</span>
+                    </div>
+                    <div>
+                        <a class="layui-btn layui-bg-red" href="/seats.html?schedule={{ item.id }}">购票</a>
+                    </div>
+                </li>
+                <hr>
+                {{# }; }}
+                {{# }); }}
+            </ul>
+        </div>
+
+    </script>
+
+</div>
+<!--座位详情-->
+<div class="container" id="seats" style="display: none;">
+    <div class="header layui-bg-black fixed-top">
+        <div class="header-title">选择座位</div>
+    </div>
+    <div class="content" id="seats-view">
+
+    </div>
+    <script id="seats_tpl" type="text/html">
+
+        <div class="movie-info-header-bg" style="background-image: url({{ d.movie.cover }});height: 170px;left:0">
+        </div>
+        <div class="movie-info-header" style="height: 170px">
+            <div class="layui-col-xs4">
+                <img style="height: 100%"
+                     src="{{ d.movie.cover }}">
+            </div>
+            <div class="layui-col-xs8 movie-info-header-right">
+                <div class="movie-info-header-name">
+                    <span>{{ d.movie.name }}</span>
+                </div>
+                <div>
+                    {{# layui.each(d.movie.tags, function(i, o){ }}
+                    <span class="layui-badge layui-bg-blue">{{o}}</span>
+                    {{# }); }}
+                </div>
+                <div>
+                    <span>{{ d.movie.country }}</span> <span>/</span> <span>{{ d.movie.duration }}分钟</span>
+                </div>
+                <div>
+                    <span>{{ d.movie.showtime}}</span> <span>大陆上映</span>
+                </div>
+            </div>
+        </div>
+        <ul class="seats-status">
+            <li>
+                <i class="layui-icon">&#xe66f;</i>可选
+            </li>
+            <li>
+                <i class="layui-icon seats-seat-disable">&#xe66f;</i>不可选
+            </li>
+            <li>
+                <i class="layui-icon seats-seat-selected">&#xe66f;</i>已选
+            </li>
+        </ul>
+        <hr>
+        <div class="seats-view">
+            <div style="text-align: center;width: 100%">
+                <div class="seats-view-screen">
+                    {{d.room.name}}-荧屏
+                </div>
+            </div>
+            <div class="seats-seat">
+                {{# layui.each(d.room.seat_rows.split(','), function(index, item){ }}
+                <div>
+                    <span>{{ index+1 }}</span>
+                    {{# for (var i = 0; i < parseInt(item); i++) { }}
+                    <i data-value="{{index+1}}:{{i+1}}" class="layui-icon seats-seat-enable">&#xe66f;</i>
+                    {{# }; }}
+                </div>
+                {{# }); }}
+            </div>
+            <div class="seats-bottom">
+                <div>
+                    <div>已选座位</div>
+                    <div class="seats-selected">
+
+                    </div>
+                </div>
+                <hr>
+                <div class="seats-confirm">
+                    <div>
+                        <div>
+                            <span id="seats-total">0</span> <span>元</span>
+                        </div>
+                        <span id="seats-price">{{d.price}}</span> x <span id="seats-selected-count">0</span>
+                    </div>
+                    <button id="seats-buy" data-href="/order.html" class="layui-btn layui-bg-orange">确认座位
+                    </button>
+                </div>
+            </div>
+        </div>
+    </script>
+</div>
+<!--订单界面-->
+<div class="container" id="order" style="display: none;">
+    <div class="header layui-bg-black fixed-top">
+        <div class="header-title">订单详情</div>
+    </div>
+    <div class="content" id="order-view">
+
+    </div>
+    <script id="order_tpl" type="text/html">
+        <!--<div class="order-pay-timer">-->
+        <!--<span>支付剩余时间：</span><span id="order-pay-timer">15:00</span>-->
+        <!--</div>-->
+        <hr>
+        <div>
+            <div style="font-size: 2.3rem;">
+                <span>{{ d.schedule.movie.name }}</span> <span
+                    class="layui-badge layui-bg-blue">{{ d.schedule.movie.type }}</span>
+            </div>
+            <div>
+                <span>{{ d.schedule.date }}</span> <span>{{ d.schedule.start_time }}</span> <span>{{ d.schedule.room.name }}</span>
+            </div>
+            <div>
+                {{# layui.each(d.seats, function(index, item){
+                var position = item.split(':');
+                }}
+                <span>{{ position[0] }}排{{ position[1] }}座</span>,
+                {{# }); }}
+            </div>
+            <hr>
+            <div style="display: flex;justify-content: space-between">
+                <span>票价</span>
+                <span style="font-size:2rem;">{{ d.total }}元</span>
+            </div>
+            <hr>
+            <div>
+                <span>手机号</span>
+                <span style="font-size:2.5rem;">{{ user_info().phone}}</span>
+            </div>
+        </div>
+        {{# if(d.status === 0 ){ }}
+        <div style="position: absolute;left: 0;bottom: 0;width: 100%;border-top: gray solid 1px">
+            <div style="text-align: right;padding: 15px">
+                <span>还需支付：</span>
+                <span style="color: red;font-size: 3rem;">{{d.total}}</span><span>元</span>
+            </div>
+            <button class="layui-btn layui-bg-orange " id="order_pay"
+                    style="margin:10px 2%;font-size:2rem;width: 96%;height: 55px">
+                确认支付
+            </button>
+        </div>
+        {{# } else if(d.status === 1){}}
+        <div style="position: absolute;left: 0;bottom: 0;width: 100%;border-top: gray solid 1px">
+            <button class="layui-btn layui-bg-orange" id="order_cancel"
+                    style="margin:10px 2%;font-size:2rem;width: 96%;height: 55px">
+                退票
+            </button>
+        </div>
+        {{# } else if(d.status === 2){}}
+        <div style="position: absolute;left: 0;bottom: 0;width: 100%;border-top: gray solid 1px">
+            <button class="layui-btn layui-btn-disabled"
+                    style="margin:10px 2%;font-size:2rem;width: 96%;height: 55px">
+                已完成
+            </button>
+        </div>
+        {{# } else if(d.status === 3){}}
+        <div style="position: absolute;left: 0;bottom: 0;width: 100%;border-top: gray solid 1px">
+            <button class="layui-btn layui-btn-disabled"
+                    style="margin:10px 2%;font-size:2rem;width: 96%;height: 55px">
+                已取消
+            </button>
+        </div>
+        {{# } else if(d.status === 4){}}
+        <div style="position: absolute;left: 0;bottom: 0;width: 100%;border-top: gray solid 1px">
+            <button class="layui-btn layui-btn-disabled"
+                    style="margin:10px 2%;font-size:2rem;width: 96%;height: 55px">
+                已退票
+            </button>
+        </div>
+        {{# } }}
+    </script>
+</div>
+<!--登录界面-->
+<div class="container" id="login" style="display: none;">
+    <form class="layui-form layui-form-pane">
+        <div class="layui-form-item login-logo">
+            <img class="circle" src="/static/img/logo.png">
+        </div>
+        <div class="layui-form-item login-input">
+            <input type="text" name="phone" lay-verify="required|phone|number" autocomplete="off" placeholder="请输入手机号">
+        </div>
+        <div class="layui-form-item login-input">
+            <input type="password" name="password" lay-verify="required" autocomplete="off" placeholder="请输入密码">
+        </div>
+        <div class="user-others">
+            <a href="/register.html" id="to-register">新用户注册</a>
+            <a href="/forget.html" id="to-forget">忘记密码？</a>
+        </div>
+        <div class="text-center ">
+            <button lay-submit lay-filter="login" class="circle login-button layui-bg-blue no-border"
+                    id="login-button">
+                登录
+            </button>
+        </div>
+    </form>
+
+</div>
+<!--注册界面-->
+<div class="container" id="register" style="display: none;">
+    <form class="layui-form layui-form-pane" id="register-form">
+        <div class="layui-form-item login-logo">
+            <img class="circle" src="/static/img/logo.png">
+        </div>
+        <div class="layui-form-item login-input">
+            <input type="text" name="phone" lay-verify="required|phone|number" autocomplete="off" placeholder="请输入手机号">
+        </div>
+        <div class="layui-form-item login-input">
+            <input type="text" name="nickname" lay-verify="required" autocomplete="off" placeholder="请输入昵称">
+        </div>
+        <div class="layui-form-item login-input">
+            <input type="password" name="password" autocomplete="off" placeholder="请输入密码">
+        </div>
+        <div class="layui-form-item login-input">
+            <input type="password" autocomplete="off" placeholder="请再次输入密码">
+        </div>
+
+        <div class="text-center ">
+            <button lay-submit lay-filter="register" class="circle login-button layui-bg-blue no-border">注册
+            </button>
+        </div>
+
+    </form>
+</div>
+<!--忘记密码-->
+<div class="container" id="forget" style="display: none;">
+    <form class="layui-form layui-form-pane" id="forget-form">
+        <div class="layui-form-item login-logo">
+            <img class="circle" src="/static/img/logo.png">
+        </div>
+        <div class="layui-form-item login-input">
+            <input type="text" name="phone" autocomplete="off" placeholder="请输入手机号">
+        </div>
+        <div class="layui-form-item login-input">
+            <input type="text" name="password" lay-verify="required" placeholder="请输入新密码" autocomplete="off">
+        </div>
+        <div class="layui-form-item login-input">
+            <input type="text" name="password" lay-verify="required" placeholder="请再次输入新密码" autocomplete="off">
+        </div>
+        <div class="layui-form-item login-code" hidden="hidden">
+            <input type="text" name="verify" lay-verify="required" placeholder="请输入验证码" autocomplete="off">
+            <button class="login-button circle layui-bg-blue no-border">验证码</button>
+        </div>
+        <div class="text-center ">
+            <button class="circle login-button layui-bg-blue no-border">登录</button>
+        </div>
+
+    </form>
+</div>
+<!--底部导航-->
+<div class="layui-tab layui-tab-brief layui-bg-black fixed-bottom no-padding no-margin" lay-filter="bottom-tab"
+     style="display: none;">
+    <ul>
+        <li class=" layui-col-xs4 hover-white">
+            <a class="text-center" href="/home.html">
+                <i class="layui-icon">&#xe68e;</i>
+                <span>主页</span>
+
+            </a>
+        </li>
+        <li class=" layui-col-xs4 hover-white">
+            <a class="text-center" href="/search.html">
+                <i class="layui-icon">&#xe615;</i>
+                <span>搜索</span>
+            </a>
+        </li>
+        <li class=" layui-col-xs4 hover-white">
+            <a class="text-center" href="/user.html">
+                <i class="layui-icon">&#xe612;</i>
+                <span>我的</span>
+            </a>
+        </li>
+    </ul>
+</div>
+<script src="/static/layui.js"></script>
+<script src="/static/js/router.js"></script>
+<script src="/static/js/tools.js"></script>
+<script src="/static/js/movie.js"></script>
+
+</body>
+
+</html>

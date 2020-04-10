@@ -1,0 +1,39 @@
+<div class="container" id="register">
+    <form class="layui-form layui-form-pane" id="register-form">
+        <div class="layui-form-item login logo">
+            <img class="circle" src="/static/img/logo.png">
+        </div>
+        <div class="layui-form-item login input">
+            <input type="text" name="phone" lay-verify="required|phone|number" autocomplete="off" placeholder="请输入手机号">
+        </div>
+        <div class="layui-form-item login input">
+            <input type="text" name="nickname" lay-verify="required" autocomplete="off" placeholder="请输入昵称">
+        </div>
+        <div class="layui-form-item login input">
+            <input type="password" name="password" autocomplete="off" placeholder="请输入密码">
+        </div>
+        <div class="layui-form-item login input">
+            <input type="password" autocomplete="off" placeholder="请再次输入密码">
+        </div>
+        <div class="text-center ">
+            <button lay-submit lay-filter="register" class="circle login button layui-bg-blue no-border">注册
+            </button>
+        </div>
+    </form>
+    <script>
+        form.on('submit(register)', function (data) {
+            $.post('/api/register', data.field, function (resp) {
+                console.log(resp);
+                if (resp.code === 0) {
+                    Router.navigate('/login.html');
+                    Router.check();
+                    layer.msg(resp.msg + ",请登陆！");
+                }
+                else {
+                    layer.msg(resp.msg);
+                }
+            });
+            return false;
+        });
+    </script>
+</div>

@@ -1,0 +1,171 @@
+<div class="container" id="user-order">
+    <div class="header layui-bg-black">
+        <div class="header title">我的订单</div>
+    </div>
+    <div id="user_orders">
+
+    </div>
+    <script id="user_orders_tpl" type="text/html">
+        <ul>
+            {{# layui.each(d, function(index, item){ }}
+            <li style="padding: 10px 0 0 0">
+                <a class="movie-item-a" href="/order.html?order={{ item.id }}">
+                    <div class="movie-item">
+                        <div class="layui-col-xs3 movie-item img">
+                            <img src="{{ item.schedule.movie.cover }}">
+                        </div>
+                        <div class="layui-col-xs7"
+                             style="display: flex;margin-right: 15px;flex-direction: column;justify-content: center;">
+                            <div class="movie-item-title">
+                                <span>{{item.schedule.movie.name}}&nbsp;</span>
+                                <span>{{item.seats.length}}</span>
+                                <span>张</span>
+                            </div>
+
+                            <div style="margin: 10px 0">
+                                <span>{{item.schedule.date}}</span> <span>{{item.schedule.start_time}}</span>
+                            </div>
+
+                            <div>
+                                <span>{{ item.schedule.room.name }}</span>
+                                {{# layui.each(item.seats, function(index, item){
+                                var position = item.split(':');
+                                }}
+                                <span>{{ position[0] }}排{{ position[1] }}座</span>,
+                                {{# }); }}
+                            </div>
+                        </div>
+                        <div class="layui-col-xs2 movie-item-buy" style="margin-right: 0">
+                            {{# if(item.status === 0 ){ }}
+                            <button data-oid="{{ item.id }}" class="layui-btn layui-bg-orange user_order_pay">付款
+                            </button>
+                            {{# }else if (item.status===1){ }}
+                            <button data-oid="{{ item.id }}" class="layui-btn layui-bg-orange user_order_unsubscribe">
+                                退票
+                            </button>
+                            {{# }else if (item.status===2){ }}
+                            {{# }else if (item.status===3){ }}
+                            {{# }else if (item.status===4){ }}
+                            {{# } }}
+                        </div>
+                    </div>
+                    <hr>
+                    <div style="padding: 0 20px">
+                        <span>总价：</span>
+                        <span>{{ item.total }}</span>
+                        <span>元</span>
+                        {{# if(item.status === 0 ){ }}
+                        <span class="cancel_order" data-oid="{{ item.id }}"
+                              style="color:orangered;float: right">取消</span>
+                        {{# }else if (item.status===1){ }}
+                        <span style="color:gray;float: right">已付款</span>
+                        {{# }else if (item.status===2){ }}
+                        <span style="color:gray;float: right">已完成</span>
+                        {{# }else if (item.status===3){ }}
+                        <span style="color:gray;float: right">已取消</span>
+                        {{# }else if (item.status===4){ }}
+                        <span style="color:gray;float: right">已退票</span>
+                        {{# } }}
+                    </div>
+                </a>
+                <hr>
+            </li>
+            {{# }); }}
+            {{# if(d.length === 0){ }}
+            {{# } }}
+        </ul>
+    </script>
+    <script>
+        function load_order() {
+            flow.load({
+                elem: '#user_orders',
+                isAuto: true,
+                done: function (page, next) {
+                    $.get('/api/user/order?page=' + page, function (res) {
+                        if (res.code === 0) {
+                            let template = user_orders_tpl.innerHTML;
+                            laytpl(template).render(res.data, function (html) {
+                                next(html, page < 2);
+                            });
+                        } else
+                            layer.msg(res.msg)
+                    });
+                }
+            });
+        }
+
+        load_order();
+        $('span.cancel_order').unbind('click').click(function (e) {
+            let oid = $(this).data('oid');
+            layer.open({
+                content: '确定取消该订单吗？',
+                btn: ['确定', '我再想想'] //按钮
+                , yes: function (index) {
+                    $.ajax({
+                        url: '/api/order/cancel',
+                        headers: {'token': layui.data('micro').token},
+                        method: 'POST',
+                        data: {'oid': oid},
+                        success: function (resp) {
+                            if (resp.code === 0) {
+                                layer.msg(resp.msg, {"code": 1});
+                                load_order();
+                            } else {
+                                layer.msg(resp.msg, {"code": 2})
+                            }
+                        }
+                    })
+                }
+            });
+            return false;
+        });
+        $('button.user_order_unsubscribe').unbind('click').click(function (e) {
+            let oid = $(this).data('oid');
+            layer.open({
+                content: '确定退订该订单吗？',
+                btn: ['确定', '我再想想'] //按钮
+                , yes: function (index) {
+                    $.ajax({
+                        url: '/api/order/cancel',
+                        headers: {'token': layui.data('micro').token},
+                        method: 'POST',
+                        data: {'oid': oid},
+                        success: function (resp) {
+                            if (resp.code === 0) {
+                                layer.msg(resp.msg, {"code": 1});
+                                load_order();
+                            } else {
+                                layer.msg(resp.msg, {"code": 2})
+                            }
+                        }
+                    })
+                }
+            });
+            return false;
+        });
+        $('button.user_order_pay').unbind('click').click(function (e) {
+            let oid = $(this).data('oid');
+            layer.open({
+                content: '确定支付该订单吗？',
+                btn: ['确定', '我再想想'],
+                yes: function (index) {
+                    $.ajax({
+                        url: '/api/order/pay',
+                        headers: {'token': layui.data('micro').token},
+                        method: 'POST',
+                        data: {'oid': oid},
+                        success: function (resp) {
+                            if (resp.code === 0) {
+                                layer.msg(resp.msg, {"code": 1});
+                                load_order();
+                            } else {
+                                layer.msg(resp.msg, {"code": 2})
+                            }
+                        }
+                    })
+                }
+            });
+            return false;
+        });
+    </script>
+</div>

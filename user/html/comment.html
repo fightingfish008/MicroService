@@ -1,0 +1,73 @@
+<div class="container" id="comment">
+    <div class="header layui-bg-black fixed-top">
+        <div class="header-title">评分</div>
+    </div>
+    <div class="content comment-content">
+        <div id="comment-score">
+            <div>
+                <span id="comment-rate-score">10</span><span>分</span>
+            </div>
+            <div>
+                <span>一般般</span>
+            </div>
+        </div>
+        <div id="comment-rate">
+        </div>
+        <div class="layui-form-item login-textarea">
+            <textarea id="comment-content" name="content" required lay-verify="required" placeholder="请输入评论内容"
+                      class="layui-textarea"></textarea>
+        </div>
+        <div>
+            <button id="add-comment" class="layui-btn layui-bg-orange" style="width: 100%">提交</button>
+        </div>
+    </div>
+    <script>
+        let mid = getUrlParam('movie');
+        let arrs = {
+            '1': '超烂啊',
+            '2': '比较差',
+            '3': '一般般',
+            '4': '比较好',
+            '5': '完美'
+        };
+        let initRate = function (value) {
+            rate.render({
+                elem: '#comment-rate',
+                value: value || 3,
+                half: true,
+                setText: function (value) {
+                    $('#comment-score>div:first>span:first').text(value * 2);
+                    $('#comment-score>div:last>span:first').text(arrs[value]);
+                }
+            });
+        };
+        initRate();
+        $.ajax({
+            url: '/api/user/comment?mid=' + mid,
+            method: "GET",
+            headers: {token: layui.data('micro').token},
+            success: function (resp) {
+                if (resp.code === 0) {
+                    initRate(parseInt(resp.data.score) / 2);
+                    $('#comment-content').val(resp.data.content);
+                } else {
+                    initRate();
+                    $('#comment-content').val('');
+                }
+            }
+        });
+        $('#add-comment').off('click').on('click', function (e) {
+            $.post('/api/user/comment', {
+                'mid': mid,
+                'content': $('#comment-content').val(),
+                'score': $('#comment-rate-score').text()
+            }, function (resp) {
+                if (resp.code === 0) {
+                    layer.msg(resp.msg);
+                    history.back();
+                } else
+                    layer.msg(resp.msg)
+            });
+        });
+    </script>
+</div>

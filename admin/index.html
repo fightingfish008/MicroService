@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Movie后台</title>
+    <link rel="stylesheet" href="/admin/static/layui/css/layui.css">
+    <link rel="stylesheet" href="/admin/static/lau/lau.css">
+    <script>(window.top === window.self) || (window.top.location.href = window.self.location.href);</script>
+</head>
+<body class="layui-layout-body layui-unselect">
+<div class="layui-layout layui-layout-admin">
+    <!--顶部导航开始-->
+    <div class="layui-header">
+        <a class="lau-logo-mini"><i class="layui-icon layui-icon-logo"></i></a>
+        <a class="layui-logo">M O V I E</a>
+        <ul class="layui-nav layui-layout-right" style="margin-right: 20px">
+            <li class="layui-nav-item" lay-unselect>
+                <a href="javascript:;"><img src="http://t.cn/RCzsdCq" class="layui-nav-img"> <span id="username"></span></a>
+                <dl class="layui-nav-child">
+                    <dd><a href="/admin/login.html">安全退出</a></dd>
+                </dl>
+            </li>
+        </ul>
+    </div>
+    <!--顶部导航结束-->
+
+    <!--侧边菜单开始-->
+    <div class="layui-side" data-href="/admin/json/menu.json">
+        <div class="lau-side-fold"><i class="layui-icon layui-icon-shrink-right"></i></div>
+        <div class="layui-side-scroll">
+            <ul class="layui-nav layui-nav-tree">
+                <!--这里可以写菜单结构,也可以放空,使用异步加载-->
+            </ul>
+        </div>
+    </div>
+    <!--侧边菜单结束-->
+
+    <!--内容主体区域开始-->
+    <div class="layui-body" data-type="" data-title="电影管理" data-icon="layui-icon-component"
+         data-href="/admin/movie.html"></div>
+    <!--内容主体区域结束-->
+</div>
+</body>
+<!--            if (resp.code === 0) {
+                $('#username').text(resp.data);
+
+            } else {
+
+                alert(resp);
+                location.href = '/admin/login.html';
+            }-->
+<script src="/admin/static/layui/layui.js"></script>
+<script>
+    layui.config({base: '/admin/static/'}).extend({lau: 'lau/lau'}).use(['lau'], function () {
+        var lau = layui.lau, $ = layui.$;
+        $.get('http://192.168.2.64:5001/api/admin/login', function (resp) {
+            alert(JSON.stringify(resp))
+
+        });
+    });
+</script>
+</html>

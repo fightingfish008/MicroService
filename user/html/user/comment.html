@@ -1,0 +1,50 @@
+<div class="container" id="user-comment">
+    <div class="header layui-bg-black">
+        <div class="header title">我的评论</div>
+    </div>
+    <div id="user_comments">
+
+    </div>
+    <script id="user_comment_tpl" type="text/html">
+        {{# layui.each(d, function(index, item){ }}
+        <div style="padding: 5px 0">
+            <div class="layui-col-xs2">
+                <img class="circle" style="width: 100%" src="/favicon.ico">
+            </div>
+            <div class="layui-col-xs10 padding-015">
+                <div class="movie-item-title"><span>{{ item.user.nickname }}</span>
+                </div>
+                <div class="rate" data-max="10" data-value="{{ item.score }}">
+                </div>
+                <div>
+                    <p>{{ item.content }}</p>
+                </div>
+                <div class="movie-comments-bottom">
+                    <span>{{ item.ctime }}</span>
+                    <div class="support" data-cid="{{item.id}}">
+                        <i class="layui-icon">&#xe6c6;</i><span>{{ item.support }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <hr>
+        {{# }); }}
+    </script>
+    <script>
+        flow.load({
+            elem: '#user_comments',
+            isAuto: false,
+            done: function (page, next) {
+                $.get('/api/user/comments?page=' + page, function (res) {
+                    if (res.code === 0) {
+                        let movie_comment_tpl = comment_tpl.innerHTML;
+                        laytpl(movie_comment_tpl).render(resp.data, function (html) {
+                            next(html, page < 1);
+                        });
+                    }
+
+                });
+            }
+        });
+    </script>
+</div>

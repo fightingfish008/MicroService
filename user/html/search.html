@@ -1,0 +1,125 @@
+<div class="container" id="search">
+    <div class="header layui-bg-black fixed-top">
+        <div class="header-title" id="search-title">搜索</div>
+        <input id="search-input" autocomplete="on" class="md-input hide" type="text" placeholder="搜索">
+        <div class="header-title header-title-right float-right" id="search-button">
+            <i style="font-size: 2rem;" class="layui-icon">&#xe615;</i>
+        </div>
+    </div>
+    <div class="content">
+        <div id="search-comments">
+            <div style="padding:10px;font-size: 2rem;margin: 0 -15px;border-bottom: #333 solid 1px;">
+                <span>热门评论</span>
+            </div>
+            <div id="comments-list">
+
+            </div>
+        </div>
+        <div id="search-movies">
+
+        </div>
+    </div>
+    <script id="search_comment_tpl" type="text/html">
+        {{# layui.each(d, function(index, item){ }}
+        <div style="padding: 5px 0">
+            <div class="layui-col-xs2">
+                <a href="/movie.html?movie={{ item.movie.id }}">
+                    <img style="width: 100%" src="{{ item.movie.cover }}">
+                    <div style="font-size: 1.3rem">{{item.movie.name}}</div>
+                </a>
+            </div>
+            <div class="layui-col-xs10 padding-015">
+                <div class="movie-item-title"><span>{{ item.user.nickname }}</span>
+                </div>
+                <div class="rate" data-max="10" data-value="{{ item.score }}">
+                </div>
+                <div>
+                    <p>{{ item.content }}</p>
+                </div>
+                <div class="movie-comments-bottom">
+                    <span style="font-size: 1rem">{{ item.ctime }}</span>
+                    <div class="support" data-cid="{{item.id}}">
+                        <i class="layui-icon">&#xe6c6;</i><span>{{ item.support }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <hr>
+        {{# }); }}
+    </script>
+    <div class="layui-tab layui-tab-brief layui-bg-black fixed-bottom">
+        <ul>
+            <li class="layui-col-xs4">
+                <a class="text-center" href="/home.html">
+                    <i class="layui-icon">&#xe68e;</i>
+                    <span>主页</span>
+                </a>
+            </li>
+            <li class="layui-col-xs4 selected">
+                <a class="text-center" href="/search.html">
+                    <i class="layui-icon">&#xe615;</i>
+                    <span>搜索</span>
+                </a>
+            </li>
+            <li class="layui-col-xs4">
+                <a class="text-center" href="/user.html">
+                    <i class="layui-icon">&#xe612;</i>
+                    <span>我的</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+    <script>
+        flow.load({
+            elem: '#comments-list'
+            , isAuto: false
+            , done: function (page, next) {
+                $.get('/api/comments/newest?page=' + page, function (res) {
+                    if (res.code === 0) {
+                        let movie_comment_tpl = search_comment_tpl.innerHTML;
+                        laytpl(movie_comment_tpl).render(res.data, function (html) {
+                            next(html, page < res.page);
+                        });
+                    }
+                });
+            }
+        });
+        $('#search-button').off('click').on('click', function () {
+            let $input = $('#search-input');
+            if ($input.is(':hidden')) {
+                $('#search-title').hide();
+                $input.show();
+                $input.focus();
+            } else {
+                let key = $input.val();
+                if (key === '' || key === undefined) {
+                    $input.hide();
+                    $('#search-title').show();
+                } else {
+                    console.log('search:' + key);
+                    $('#search-comments').hide();
+                    $('#search-movies').show();
+                    $.ajax({
+                        url: '/api/search?key=' + key,
+                        method: "GET",
+                        success: function (resp) {
+                            if (resp.code === 0) {
+                                if (resp.data.length === 0) {
+                                    layer.msg('未搜索到包含该关键字的电影');
+                                    return;
+                                }
+                                let upcoming_template = movie_list.innerHTML;
+                                let upcoming_view = document.getElementById('search-movies');
+                                laytpl(upcoming_template).render(resp.data, function (html) {
+                                    upcoming_view.innerHTML = html;
+                                });
+                            } else {
+                                layer.msg(resp.msg)
+                            }
+                        }
+                    })
+                }
+            }
+        });
+    </script>
+</div>

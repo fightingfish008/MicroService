@@ -1,0 +1,34 @@
+[
+  [
+    {
+      "title": "电影管理",
+      "icon": "layui-icon-component",
+      "href": "/admin/movie.html"
+    },
+    {
+      "title": "影厅管理",
+      "icon": "layui-icon-component",
+      "href": "/admin/room.html"
+    },
+    {
+      "title": "排期管理",
+      "icon": "layui-icon-component",
+      "href": "/admin/schedule.html"
+    },
+    {
+      "title": "订单管理",
+      "icon": "layui-icon-component",
+      "href": "/admin/order.html"
+    },
+    {
+      "title": "评论管理",
+      "icon": "layui-icon-component",
+      "href": "/admin/comment.html"
+    },
+    {
+      "title": "用户管理",
+      "icon": "layui-icon-user",
+      "href": "/admin/user.html"
+    }
+  ]
+]

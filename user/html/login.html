@@ -1,0 +1,43 @@
+<div class="container" id="login">
+    <form class="layui-form layui-form-pane">
+        <div class="layui-form-item login logo">
+            <img class="circle" src="/user/static/img/logo.png">
+        </div>
+        <div class="layui-form-item login input">
+            <input type="text" name="phone" lay-verify="required|phone|number" autocomplete="off" placeholder="请输入手机号">
+        </div>
+        <div class="layui-form-item login input">
+            <input type="password" name="password" lay-verify="required" autocomplete="off" placeholder="请输入密码">
+        </div>
+        <div class="user-others">
+            <a href="/register.html" id="to-register">新用户注册</a>
+            <a href="/forget.html" id="to-forget">忘记密码？</a>
+        </div>
+        <div class="text-center ">
+            <button lay-submit lay-filter="login" class="circle login button layui-bg-blue no-border"
+                    id="login-button">
+                登录
+            </button>
+        </div>
+    </form>
+    <script>
+        form.on('submit(login)', function (data) {
+            $.post('/api/login', data.field, function (resp) {
+                if (resp.code === 0) {
+                    if (layui.data('micro').token === undefined) {
+                        layui.data('micro', {
+                            key: 'token',
+                            value: resp.token
+                        });
+                    }
+                    Router.navigate('/user.html');
+                    Router.check();
+                    layer.msg(resp.msg);
+                } else {
+                    layer.msg(resp.msg);
+                }
+            });
+            return false;
+        });
+    </script>
+</div>

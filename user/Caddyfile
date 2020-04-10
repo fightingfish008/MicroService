@@ -1,0 +1,18 @@
+0.0.0.0:10000 {
+    gzip
+    index index.html
+    log stdout
+    proxy /api http://127.0.0.1:5001 {
+        transparent
+        except static
+        without /api
+    }
+    errors {
+        404 404.html
+    }
+    rewrite {
+        ext .html
+        to {path} /
+    }
+}
+

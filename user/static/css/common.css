@@ -1,0 +1,140 @@
+/**/
+html, body {
+    background-color: #fff;
+    height: 100%;
+}
+
+.no-padding {
+    padding: 0;
+}
+
+.no-margin {
+    margin: 0;
+}
+
+.container {
+    height: 100%;
+    width: 100%;
+    padding: 0;
+    margin: 0;
+}
+
+.hide {
+    display: none;
+}
+
+.show {
+    display: inline-block;
+}
+
+.flex-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.img-full {
+    width: 100%;
+    height: 100%;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.no-border {
+    border: none;
+}
+
+/*-------tab--------*/
+.tab {
+    background-color: #333;
+    color: gray;
+}
+
+.tab.selected {
+    color: white;
+}
+
+/*------end-------*/
+
+/*--------header-------*/
+.header {
+    height: 55px;
+    z-index: 99;
+    color: #ffffff;
+}
+
+.header.title {
+    display: inline-block;
+    height: 100%;
+    margin-left: 20px;
+    font-size: 1.5rem;
+    line-height: 55px;
+}
+
+.selected > * {
+    color: #fff !important;
+}
+
+.fixed-top {
+    position: fixed;
+    width: 100%;
+    top: 0;
+    z-index: 1000;
+    height: 55px;
+    padding: 0;
+    margin: 0;
+    font-size: 1.4rem;
+}
+
+.fixed-top li {
+    line-height: 55px;
+    text-align: center;
+}
+
+.fixed-top li div {
+    color: white;
+}
+
+.fixed-top li.layui-this:after {
+    content: '';
+    border-bottom: orangered solid 4px;
+    display: block;
+    margin-top: -4px;
+}
+
+.fixed-top li.layui-this div {
+    color: orangered !important;
+}
+
+.fixed-bottom {
+    position: fixed;
+    width: 100%;
+    bottom: 0;
+    z-index: 1000;
+    height: 60px;
+    padding: 0;
+    margin: 0;
+    color: gray;
+}
+
+.fixed-bottom li {
+    line-height: inherit;
+    height: 60px;
+    padding: 8px;
+}
+
+.fixed-bottom a {
+    margin-top: 6px;
+    color: gray;
+}
+
+.fixed-bottom a > * {
+    display: block;
+    font-size: 2rem;
+}
+
+.fixed-bottom a > span {
+    font-size: 0.9rem;
+}

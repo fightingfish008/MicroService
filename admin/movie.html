@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>电影信息管理</title>
+    <link rel="stylesheet" href="/admin/static/layui/css/layui.css">
+    <link rel="stylesheet" href="/admin/static/css/common.css">
+</head>
+<body>
+<div class="layui-col-md12">
+    <!--数据表格开始-->
+    <div class="layui-card">
+        <div class="layui-card-body">
+            <div>
+                <button id="add-btn" class="layui-btn">新增 <i class="layui-icon">&#xe654;</i></button>
+                <button id="disable" class="layui-btn">禁用</button>
+                <button id="enable" class="layui-btn">待上映</button>
+                <button id="start" class="layui-btn">上映</button>
+                <button id="stop" class="layui-btn">下映</button>
+                <button id="del-btn" class="layui-btn layui-btn-danger">删除 <i class="layui-icon">&#xe640;</i></button>
+            </div>
+            <div class="layui-tab-item layui-show">
+                <table id="movie-list"></table>
+            </div>
+        </div>
+    </div>
+    <!--数据表格结束-->
+</div>
+
+<div id="model" data-title="电影" style="display: none;padding:20px">
+    <form id="movie-form" class="layui-form layui-form-pane" action="" enctype="multipart/form-data">
+        <div class="layui-form-item layui-hide">
+            <label class="layui-form-label">ID</label>
+            <div class="layui-input-block">
+                <input type="text" name="id" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">电影名称</label>
+            <div class="layui-input-block">
+                <input type="text" name="name" required lay-verify="required" placeholder="请输入名称"
+                       autocomplete="off"
+                       class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">电影封面</label>
+            <div class="layui-input-block">
+                <input type="file" name="cover" class="layui-input layui-upload-input">
+                <span class="layui-upload-icon"><i class="layui-icon">&#xe61f;</i>上传图片</span>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">上映时间</label>
+            <div class="layui-input-block">
+                <input type="text" id="showtime" name="showtime" required lay-verify="required"
+                       autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">电影时长</label>
+            <div class="layui-input-block">
+                <input type="number" id="duration" name="duration" required lay-verify="required"
+                       autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">产地</label>
+            <div class="layui-input-block">
+                <input type="text" id="country" name="country" required lay-verify="required"
+                       autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">导演</label>
+            <div class="layui-input-block">
+                <input type="text" name="director" required lay-verify="required" placeholder="请输入导演名称"
+                       autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">主演</label>
+            <div class="layui-input-block">
+                <input type="text" name="players" required lay-verify="required" placeholder="请输入主演名称，逗号（，）隔开"
+                       autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">状态</label>
+            <div class="layui-input-block">
+                <select name="type" lay-verify="required">
+                    <option value="2D">2D</option>
+                    <option value="3D">3D</option>
+                    <option value="4D">4D</option>
+                </select>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">标签</label>
+            <div class="layui-input-block">
+                <input type="text" name="tags" required lay-verify="required" placeholder="请输入标签，逗号(,)隔开"
+                       autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">状态</label>
+            <div class="layui-input-block">
+                <select name="status" lay-verify="required">
+                    <option value="0">禁用</option>
+                    <option value="1">未上映</option>
+                    <option value="2">已上映</option>
+                    <option value="3">已下映</option>
+                </select>
+            </div>
+        </div>
+        <div class="layui-form-item layui-form-text">
+            <label class="layui-form-label">电影简介</label>
+            <div class="layui-input-block">
+                <textarea name="description" placeholder="请输入内容" class="layui-textarea"></textarea>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-input-block" style="margin-left: 0;text-align: center">
+                <button class="layui-btn" lay-submit lay-filter="movie">立即提交</button>
+                <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+</body>
+<script src="/admin/static/layui/layui.js"></script>
+<script>
+    layui.config({base: '/admin/static/js/'}).extend({
+        common: 'common'
+    }).use(['table', 'common', 'form', 'laydate'], function () {
+        var common = layui.common,
+            $ = layui.$,
+            layer = layui.layer,
+            form = layui.form,
+            table = layui.table,
+            laydate = layui.laydate;
+
+        // formSelects.debug(true);
+
+        var update_table = function () {
+            table.render({
+                id: 'table',
+                elem: '#movie-list',
+                url: 'http://192.168.2.64:5001/api/admin/movie',
+                page: true,
+                cols: [[
+                    {title: '', width: 40, type: 'checkbox', fixed: 'left'},
+                    {field: 'name', title: '电影名称', sort: true},
+                    {field: 'showtime', title: '上映时间', sort: true},
+                    {field: 'duration', title: '时长', sort: true},
+                    {field: 'director', title: '导演', sort: true},
+                    {field: 'country', title: '产地', sort: true},
+                    {field: 'tags', title: '标签'},
+                    {field: 'ctime', title: '添加时间', sort: true},
+                    {
+                        field: 'status', width: 80, title: '状态', type: 'text', templet: function (d) {
+                            var status = ['禁用', '已下映', '已上映', '未上映'];
+                            return status[d.status];
+                        }
+                    },
+                    {
+                        title: '', width: 78, fixed: 'right', type: 'button', templet: function (d) {
+                            return '<button data-id="' + d.id +
+                                '" data-name="' + d.name +
+                                '" data-showtime="' + d.showtime +
+                                '" data-duration="' + d.duration +
+                                '" data-director="' + d.director +
+                                '" data-country="' + d.country +
+                                '" data-players="' + d.players +
+                                '" data-tags="' + d.tags +
+                                '" data-description="' + d.description +
+                                '" data-status="' + d.status +
+                                '" class="layui-btn layui-btn-sm edit-btn">编辑</button>';
+                        }
+                    }
+                ]]
+            });
+        };
+        update_table();
+        //处理更新和新增请求
+        form.on('submit(movie)', function (data) {
+            // $('.layui-upload-icon').html('<i class="layui-icon">&#xe61f;</i>上传图片');
+            var formdata = new FormData(document.getElementById("movie-form"));
+            $.ajax({
+                url: 'http://192.168.2.64:5001/api/admin/movie' + (data.field.id ? '/' + data.field.id : ''),
+                method: data.field.id ? 'PUT' : 'POST',
+                data: formdata,
+                processData: false,
+                contentType: false,
+                dataType: 'json',
+                success: function (resp, status, xhr) {
+                    if (resp.code === 0) {
+                        update_table();
+                        layer.msg(resp.msg, {icon: 1});
+                        layer.close(model);
+
+                    } else {
+                        layer.msg(resp.msg, {icon: 2});
+                    }
+                },
+                error: function (resp) {
+                    console.log(resp)
+                }
+            });
+            return false; //阻止表单跳转。如果需要表单跳转，去掉这段即可。
+        });
+
+        $('#add-btn').on('click', function () {
+            model = layer.open({
+                type: 1,
+                area: ['500px', 'auto'],
+                title: '添加' + $('#model').data('title'),
+                fixed: false, //不固定
+                maxmin: true,
+                content: $('#model'),
+                success: function (layero, index) {
+                    $('#model').show();
+                    // document.getElementById("movie-form").reset();
+                },
+                cancel: function (layero, index) {
+                    $('#model').hide();
+                }
+            });
+        });
+        // 禁用
+        $('#disable').on('click', function () {
+            var checkeds = table.checkStatus('table');
+            var ids = [];
+            for (var i in checkeds.data) {
+                ids.push(checkeds.data[i].id);
+            }
+            if (checkeds.data.length === 0) {
+                layer.msg("请选择数据！", {icon: 2});
+                return;
+            }
+            ids = ids.join(',');
+            layer.confirm('是否将选中的电影更新为禁用？', {
+                btn: ['确定', '取消'] //按钮
+            }, function () {
+                $.ajax({
+                    url: 'http://192.168.2.64:5001/api/admin/movie',
+                    method: 'PUT',
+                    data: {'ids': ids, 'status': 0},
+                    success: function (resp) {
+                        if (resp.code === 0) {
+                            layer.msg(resp.msg, {icon: 1});
+                            update_table();
+                        } else {
+                            layer.msg(resp.msg, {icon: 1});
+                        }
+                    }
+                });
+
+            }, function () {
+            });
+        });
+        $('#enable').on('click', function () {
+            var checkeds = table.checkStatus('table');
+            var ids = [];
+            for (var i in checkeds.data) {
+                ids.push(checkeds.data[i].id);
+            }
+            if (checkeds.data.length === 0) {
+                layer.msg("请选择数据！", {icon: 2});
+                return;
+            }
+            ids = ids.join(',');
+            layer.confirm('是否将选中的电影更新为待上映？', {
+                btn: ['确定', '取消'] //按钮
+            }, function () {
+                $.ajax({
+                    url: 'http://192.168.2.64:5001/api/admin/movie',
+                    method: 'PUT',
+                    data: {'ids': ids, 'status': 3},
+                    success: function (resp) {
+                        if (resp.code === 0) {
+                            layer.msg(resp.msg, {icon: 1});
+                            update_table();
+                        } else {
+                            layer.msg(resp.msg, {icon: 1});
+                        }
+                    }
+                });
+
+            }, function () {
+            });
+        });
+        // 上映
+        $('#start').on('click', function () {
+            var checkeds = table.checkStatus('table');
+            var ids = [];
+            for (var i in checkeds.data) {
+                ids.push(checkeds.data[i].id);
+            }
+            if (checkeds.data.length === 0) {
+                layer.msg("请选择数据！", {icon: 2});
+                return;
+            }
+            ids = ids.join(',');
+            layer.confirm('是否将选中的电影更新为上映？', {
+                btn: ['确定', '取消'] //按钮
+            }, function () {
+                $.ajax({
+                    url: 'http://192.168.2.64:5001/api/admin/movie',
+                    method: 'PUT',
+                    data: {'ids': ids, 'status': 2},
+                    success: function (resp) {
+                        if (resp.code === 0) {
+                            layer.msg(resp.msg, {icon: 1});
+                            update_table();
+                        } else {
+                            layer.msg(resp.msg, {icon: 1});
+                        }
+                    }
+                });
+
+            }, function () {
+            });
+        });
+//        编辑
+        $(document).on('click', 'button.edit-btn', function () {
+            var that = this;
+            model = layer.open({
+                type: 1,
+                area: ['500px', 'auto'],
+                title: '编辑' + $('#model').data('title'),
+                fixed: false, //不固定
+                maxmin: true,
+                content: $('#model'),
+                success: function (layero, index) {
+                    $('#model input[name="id"]').val($(that).data('id'));
+                    $('#model input[name="name"]').val($(that).data('name'));
+                    $('#model input[name="showtime"]').val($(that).data('showtime'));
+                    $('#model input[name="duration"]').val($(that).data('duration'));
+                    $('#model input[name="director"]').val($(that).data('director'));
+                    $('#model input[name="players"]').val($(that).data('players'));
+                    $('#model input[name="country"]').val($(that).data('country'));
+                    $('#model input[name="tags"]').val($(that).data('tags'));
+                    $('#model textarea[name="description"]').val($(that).data('description'));
+                    $('#model select[name="status"]').val($(that).data('status'));
+                    $('#model').show();
+                    form.render('select');
+                },
+                cancel: function (layero, index) {
+                    $('#model').hide();
+                }
+            });
+        });
+        // 下映
+        $('#stop').on('click', function () {
+            var checkeds = table.checkStatus('table');
+            var ids = [];
+            for (var i in checkeds.data) {
+                ids.push(checkeds.data[i].id);
+            }
+            if (checkeds.data.length === 0) {
+                layer.msg("请选择数据！", {icon: 1});
+                return;
+            }
+            ids = ids.join(',');
+            layer.confirm('是否将选中的电影更新为下映？', {
+                btn: ['确定', '取消'] //按钮
+            }, function () {
+                $.ajax({
+                    url: 'http://192.168.2.64:5001/api/admin/movie',
+                    method: 'PUT',
+                    data: {'ids': ids, 'status': 3},
+                    success: function (resp) {
+                        if (resp.code === 0) {
+                            layer.msg(resp.msg, {icon: 1});
+                            update_table();
+                        } else {
+                            layer.msg(resp.msg, {icon: 1});
+                        }
+                    }
+                });
+            }, function () {
+            });
+        });
+        // 删除
+        $('#del-btn').on('click', function () {
+            var checkeds = table.checkStatus('table');
+            var ids = [];
+            for (var i in checkeds.data) {
+                ids.push(checkeds.data[i].id);
+            }
+            if (checkeds.data.length === 0) {
+                layer.msg("请选择数据！", {icon: 2});
+                return;
+            }
+            ids = ids.join(',');
+            layer.confirm('是否删除选中电影？', {
+                btn: ['确定', '取消'] //按钮
+            }, function () {
+                $.ajax({
+                    url: 'http://192.168.2.64:5001/api/admin/movie',
+                    method: 'DELETE',
+                    data: {'ids': ids},
+                    success: function (resp) {
+                        if (resp.code === 0) {
+                            update_table();
+                            layer.msg(resp.msg, {icon: 1});
+                        } else {
+                            layer.msg(resp.msg, {icon: 2});
+                        }
+                    },
+                    error: function () {
+
+                    }
+                });
+            }, function () {
+            });
+        });
+
+        laydate.render({
+            elem: '#showtime' //指定元素
+        });
+
+        $('input[name=cover]').change(function () {
+            if ($(this).val() === '') {
+                $('.layui-upload-icon').html('<i class="layui-icon">&#xe61f;</i>上传图片');
+            } else
+                $('.layui-upload-icon').html($(this).val());
+        });
+    });
+</script>
+</html>

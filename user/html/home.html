@@ -1,0 +1,158 @@
+<div class="container" id="home">
+    <div class="layui-tab layui-tab-brief layui-bg-black fixed-top" lay-filter="top-tab">
+        <ul>
+            <li class="layui-col-xs6" id="playing">
+                <div class="text-center">正在热映</div>
+            </li>
+            <li class="layui-col-xs6" id="upcoming">
+                <div class="text-center">即将上映</div>
+            </li>
+        </ul>
+    </div>
+    <div class="movie-list">
+        <div id="playing-list" class="view-list"></div>
+        <div id="upcoming-list" class="view-list"></div>
+    </div>
+    <div class="layui-tab layui-tab-brief layui-bg-black fixed-bottom">
+        <ul>
+            <li class="layui-col-xs4 selected">
+                <a class="text-center" href="/home.html">
+                    <i class="layui-icon">&#xe68e;</i>
+                    <span>主页</span>
+                </a>
+            </li>
+            <li class="layui-col-xs4">
+                <a class="text-center" href="/search.html">
+                    <i class="layui-icon">&#xe615;</i>
+                    <span>搜索</span>
+                </a>
+            </li>
+            <li class="layui-col-xs4">
+                <a class="text-center" href="/user.html">
+                    <i class="layui-icon">&#xe612;</i>
+                    <span>我的</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+    <script id="movie_template" type="text/html">
+        <ul>
+            {{# layui.each(d, function(index, item){ }}
+            <li>
+                <a href="/movie.html?movie={{ item.id }}">
+                    <div class="movie-item">
+                        <div class="layui-col-xs3 movie-item img">
+                            <img src="{{ item.cover }}">
+                        </div>
+                        <div class="layui-col-xs7">
+                            <div class="movie-item-title"><span>{{item.name}}</span>
+                                {{# if(item.type != ""){ }}
+                                <span class="layui-badge layui-bg-black circle">{{item.type}}</span>
+                                {{# } }}
+                            </div>
+                            {{# if(item.status===3){}}
+                            <div>
+                                <span>想看：</span>
+                                <span style="color: orangered">{{item.want}}</span>
+                            </div>
+                            {{# }else if (item.status===2){ }}
+                            <div>
+                                <span>观众评分：</span>
+                                <span style="color: orangered">{{item.score}}</span>
+                            </div>
+                            {{# } }}
+                            <div>
+                                <span>导演：{{item.director}}</span>
+                            </div>
+                            <div>
+                                <span>主演：{{item.players}}</span>
+                            </div>
+                            <div>
+                                <span>标签：</span>
+                                {{# layui.each(item.tags, function(i, o){ }}
+                                <span class="layui-badge layui-bg-gray">{{o}}</span>
+                                {{# }); }}
+                            </div>
+                        </div>
+
+                        {{# if(item.status===3){}}
+                        <div class="layui-col-xs2 movie-item-buy">
+                            <button id="{{ item.id }}" class="layui-btn layui-bg-red layui-btn-normal want">想看
+                            </button>
+                        </div>
+                        {{# }else if (item.status===2){ }}
+                        <div class="layui-col-xs2 movie-item-buy">
+                            <button id="{{ item.id }}" class="layui-btn layui-btn-normal buy">购票</button>
+                        </div>
+                        {{# } }}
+                    </div>
+                </a>
+                <hr>
+            </li>
+            {{# }); }}
+            {{# if(d.length === 0){ }}
+            {{# } }}
+        </ul>
+    </script>
+    <script>
+        let hash = location.hash;
+        if (hash === '#upcoming') {
+            $('#upcoming').addClass('layui-this');
+            $('#playing').removeClass('layui-this');
+        } else {
+            $('#playing').addClass('layui-this');
+            $('#upcoming').removeClass('layui-this');
+        }
+        $('#playing').unbind('click').click(function (e) {
+            $('#playing').addClass('layui-this');
+            $('#upcoming').removeClass('layui-this');
+            prev();
+        });
+        $('#upcoming').unbind('click').click(function (e) {
+            $('#upcoming').addClass('layui-this');
+            $('#playing').removeClass('layui-this');
+            next();
+        });
+
+        function next() {
+            $('#playing-list').css('-webkit-transform', 'translateX(-480px)');
+            $('#upcoming-list').css('-webkit-transform', 'translateX(-480px)');
+        }
+
+        function prev() {
+            $('#playing-list').css('-webkit-transform', 'translateX(0px)');
+            $('#upcoming-list').css('-webkit-transform', 'translateX(0px)');
+        }
+
+        flow.load({
+            elem: '#playing-list',
+            isAuto: true,
+            done: function (page, next) {
+                $.get('/api/movie/playing?page=' + page, function (res) {
+                    if (res.code === 0) {
+                        let template = movie_template.innerHTML;
+                        laytpl(template).render(res.data, function (html) {
+                            next(html, page < res.pages);
+                        });
+                    }
+
+                });
+            }
+        });
+        flow.load({
+            elem: '#upcoming-list',
+            isAuto: true,
+            done: function (page, next) {
+                $.get('/api/movie/upcoming?page=' + page, function (res) {
+                    if (res.code === 0) {
+                        let template = movie_template.innerHTML;
+                        laytpl(template).render(res.data, function (html) {
+                            next(html, page < 2);
+                        });
+                    }
+
+                });
+            }
+        });
+    </script>
+</div>

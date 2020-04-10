@@ -1,0 +1,199 @@
+<div class="container" id="movie">
+    <div class="header layui-bg-black fixed-top">
+        <div class="header-title">电影详情</div>
+    </div>
+    <div class="content">
+        <div id="movie-info">
+        </div>
+        <script id="movie_info_tpl" type="text/html">
+            <div class="movie-info-header-bg" style="background-image: url({{ d.cover }});">
+            </div>
+            <div class="movie-info-header">
+                <div class="layui-col-xs4">
+                    <img class="img-full"
+                         src="{{ d.cover }}">
+                </div>
+                <div class="layui-col-xs8 movie-info-header-right">
+                    <div class="movie-info-header-name">
+                        <span>{{ d.name }}</span>
+                    </div>
+                    <div class="movie-info-header-want">
+                        <span>{{ d.want }}</span> <span>人想看</span>
+                    </div>
+                    <div>
+                        {{# layui.each(d.tags, function(i, o){ }}
+                        <span class="layui-badge layui-bg-gray">{{o}}</span>
+                        {{# }); }}
+                    </div>
+                    <div>
+                        <span>{{ d.country }}</span> <span>/</span> <span>{{ d.duration }}分钟</span>
+                    </div>
+                    <div>
+                        <span>{{ d.showtime}}</span> <span>大陆上映</span>
+                    </div>
+                </div>
+            </div>
+            <div style="display: flex;justify-content: space-evenly">
+                <button class="layui-btn layui-bg-blue layui-col-xs5">想看</button>
+                <a id="movie_score" href="/comment.html?movie={{ d.id }}" class="layui-btn layui-bg-blue layui-col-xs5">评分</a>
+            </div>
+            <hr>
+            <div class="movie-info-description">
+                <p id="description">
+                    {{ d.description}}
+                </p>
+                <div>
+                    <i class="layui-icon" style="font-size: 1.3rem;">&#xe61a;</i>
+                </div>
+            </div>
+        </script>
+
+        <hr>
+        <div class="movie-comments">
+            <div class="movie-comments-header">
+                <span>观众热评</span>
+                <a id="write-comment" class="layui-btn circle">写短评</a>
+            </div>
+            <hr>
+            <div id="movie-comments-list">
+
+            </div>
+        </div>
+        <a id="movie-buy" class="movie-buy" href="/schedule.html">
+            立即购票
+        </a>
+    </div>
+    <script id="comment_tpl" type="text/html">
+        {{# layui.each(d, function(index, item){ }}
+        <div style="padding: 5px 0">
+            <div class="layui-col-xs2">
+                <img class="circle" style="width: 100%" src="/favicon.ico">
+            </div>
+            <div class="layui-col-xs10 padding-015">
+                <div class="movie-item-title"><span>{{ item.user.nickname }}</span>
+                </div>
+                <div class="rate" data-max="10" data-value="{{ item.score }}">
+                </div>
+                <div>
+                    <p>{{ item.content }}</p>
+                </div>
+                <div class="movie-comments-bottom">
+                    <span style="font-size: 1rem">{{ item.ctime }}</span>
+                    <div class="support" data-cid="{{item.id}}">
+                        <i class="layui-icon">&#xe6c6;</i><span>{{ item.support }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <hr>
+        {{# }); }}
+    </script>
+    <script>
+        let movie = getUrlParam('movie');
+        $('#movie-comments-list').html('');
+
+        $.get('/api/movie?mid=' + movie, function (resp) {
+            if (resp.code === 0) {
+                let template = $('#movie_info_tpl').html();
+                let view = document.getElementById('movie-info');
+                laytpl(template).render(resp.data, function (html) {
+                    view.innerHTML = html;
+                });
+                $('#write-comment').prop('href', '/comment.html?movie=' + resp.data.id);
+                if (resp.data.status === 2) {//已上映
+                    $('#movie-buy').show().prop('href', '/schedule.html?movie=' + resp.data.id)
+                } else  //未上映
+                    $('#movie-buy').hide();
+                init();
+            } else {
+                layer.msg(resp.msg)
+            }
+        });
+
+        function init() {
+            $.get('/api/user/want?mid=' + movie, function (resp) {
+                if (resp.code === 0) {
+                    $('button[data-want_mid]').addClass('wanted').text('已想看');
+                } else {
+                    $('button[data-want_mid]').removeClass('wanted').text('想看');
+                }
+            });
+            $.get('/api/user/comment?mid=' + movie, function (resp) {
+                if (resp.code === 0) {
+                    $('#write-comment').text('我的短评');
+                    $('#movie_score').text(resp.data.score + '分  评分');
+                } else {
+                    $('#write-comment').text('写短评');
+                    $('#movie_score').text('评分');
+                }
+            });
+            //加载评论
+            flow.load({
+                elem: '#movie-comments-list',
+                isAuto: true,
+                done: function (page, next) {
+                    $.get('/api/movie/comment?mid=' + movie + '&page=' + page, function (res) {
+                        if (res.code === 0) {
+                            let template = comment_tpl.innerHTML;
+                            laytpl(template).render(res.data, function (html) {
+                                next(html, page < res.page);
+                            });
+                        }
+                        bind_click();
+                    });
+                }
+            });
+        }
+
+        function bind_click() {
+            $('.movie-info-description').off('click').on('click', function (e) {
+                    let $p = $(this).find('p');
+                    let overflow = $p.css('overflow');
+                    if (overflow === 'hidden') {
+                        $p.css('overflow', 'auto');
+                        $p.css('max-height', 'none');
+                        $(this).find('i').html('&#xe619;')
+                    } else {
+                        $p.css('overflow', 'hidden');
+                        $p.css('max-height', '80px');
+                        $(this).find('i').html('&#xe61a;')
+                    }
+                }
+            );
+            //点赞||取消点赞
+            $('.support').off('click').on('click', function () {
+                let that = this;
+                $.post('/api/comment/support', {'cid': $(this).data('cid')}, function (resp) {
+                    if (resp.code === 0) {
+                        layer.msg(resp.msg);
+                        if (resp.msg === '点赞成功') {
+                            $(that).find('i').css("color", "red");
+                            $(that).find('span').text(parseInt($(that).find('span').text()) + 1)
+                        } else {
+                            $(that).find('i').css("color", "black");
+                            $(that).find('span').text(parseInt($(that).find('span').text()) - 1)
+                        }
+                    } else {
+                        layer.msg(resp.msg)
+                    }
+                })
+            });
+            //添加到想看
+            $('button[data-want_mid]').off('click').on('click', function (e) {
+                let that = this;
+                $.post('/api/user/want', {'mid': movie}, function (resp) {
+                    if (resp.code === 0) {
+                        layer.msg(resp.msg);
+                        if ($(that).hasClass('wanted')) {
+                            $(that).removeClass('wanted').text('想看');
+                        } else {
+                            $(that).addClass('wanted').text('已想看');
+                        }
+                    } else {
+                        layer.msg(resp.msg)
+                    }
+                });
+            });
+        }
+    </script>
+</div>
