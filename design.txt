@@ -1,0 +1,19 @@
+服务的划分：
+    * MovieService(电影服务)，处理电影详情的管理，需管理员权限，需要token授权
+    * OrderService(订单服务)，处理用户的订单，需要调用其他微服务
+    * RoomService(放映厅服务)，处理放映厅的管理，需管理员权限，需要token授权
+    * ScheduleService(电影排期服务)，处理每天的电影排期，
+    * SearchService(搜索服务)，处理用户的搜索，无需token认证
+    * TagService(电影标签服务)，处理电影标签的管理，需管理员权限，需要token授权
+    * UserService(用户服务)，处理用户的登录及注册，以及token的实现，基于Json Web Token
+    * RegisterService(微服务注册与发现服务)，用于动态管理微服务应用
+
+
+数据库设计：
+    * MovieService，和TagService共享数据库，movie和tag表，micro_movie
+    * OrderService,单独数据库，order表，micro_order
+    * RoomService，单独数据库，micro_room
+    * ScheduleService，单独的数据库，micro_schedule
+    * SearchService，和ScheduleService共享数据库，使用micro_schedule数据库
+    * TagService，和MovieService共享数据库，movie和tag表，micro_movie
+    * UserService，单独的数据库，分为user和admin表，分别存储普通用户和管理员，micro_user
