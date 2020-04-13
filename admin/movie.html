@@ -147,7 +147,7 @@
             table.render({
                 id: 'table',
                 elem: '#movie-list',
-                url: 'http://192.168.2.64:5001/api/admin/movie',
+                url: 'http://192.168.1.4:5001/api/admin/movie',
                 page: true,
                 cols: [[
                     {title: '', width: 40, type: 'checkbox', fixed: 'left'},
@@ -188,7 +188,7 @@
             // $('.layui-upload-icon').html('<i class="layui-icon">&#xe61f;</i>上传图片');
             var formdata = new FormData(document.getElementById("movie-form"));
             $.ajax({
-                url: 'http://192.168.2.64:5001/api/admin/movie' + (data.field.id ? '/' + data.field.id : ''),
+                url: 'http://192.168.1.4:5001/api/admin/movie' + (data.field.id ? '/' + data.field.id : ''),
                 method: data.field.id ? 'PUT' : 'POST',
                 data: formdata,
                 processData: false,
@@ -244,7 +244,7 @@
                 btn: ['确定', '取消'] //按钮
             }, function () {
                 $.ajax({
-                    url: 'http://192.168.2.64:5001/api/admin/movie',
+                    url: 'http://192.168.1.4:5001/api/admin/movie',
                     method: 'PUT',
                     data: {'ids': ids, 'status': 0},
                     success: function (resp) {
@@ -275,7 +275,7 @@
                 btn: ['确定', '取消'] //按钮
             }, function () {
                 $.ajax({
-                    url: 'http://192.168.2.64:5001/api/admin/movie',
+                    url: 'http://192.168.1.4:5001/api/admin/movie',
                     method: 'PUT',
                     data: {'ids': ids, 'status': 3},
                     success: function (resp) {
@@ -307,7 +307,7 @@
                 btn: ['确定', '取消'] //按钮
             }, function () {
                 $.ajax({
-                    url: 'http://192.168.2.64:5001/api/admin/movie',
+                    url: 'http://192.168.1.4:5001/api/admin/movie',
                     method: 'PUT',
                     data: {'ids': ids, 'status': 2},
                     success: function (resp) {
@@ -368,7 +368,7 @@
                 btn: ['确定', '取消'] //按钮
             }, function () {
                 $.ajax({
-                    url: 'http://192.168.2.64:5001/api/admin/movie',
+                    url: 'http://192.168.1.4:5001/api/admin/movie',
                     method: 'PUT',
                     data: {'ids': ids, 'status': 3},
                     success: function (resp) {
@@ -399,7 +399,7 @@
                 btn: ['确定', '取消'] //按钮
             }, function () {
                 $.ajax({
-                    url: 'http://192.168.2.64:5001/api/admin/movie',
+                    url: 'http://192.168.1.4:5001/api/admin/movie',
                     method: 'DELETE',
                     data: {'ids': ids},
                     success: function (resp) {

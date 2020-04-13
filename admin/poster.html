@@ -292,7 +292,7 @@
                 $('.layui-upload-icon').html($(this).val());
         });
         $.ajax({
-            url: 'http:192.168.2.64:5001/api/admin/movie',
+            url: 'http:192.168.1.4:5001/api/admin/movie',
             method: 'GET',
             success: function (resp) {
                 if (resp.code === 0) {

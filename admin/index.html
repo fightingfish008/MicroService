@@ -56,7 +56,7 @@
 <script>
     layui.config({base: '/admin/static/'}).extend({lau: 'lau/lau'}).use(['lau'], function () {
         var lau = layui.lau, $ = layui.$;
-        $.get('http://192.168.2.64:5001/api/admin/login', function (resp) {
+        $.get('http://192.168.1.4:5001/api/admin/login', function (resp) {
             alert(JSON.stringify(resp))
 
         });

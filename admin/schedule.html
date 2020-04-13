@@ -113,7 +113,7 @@
             table.render({
                 id: 'table',
                 elem: '#schedule-list',
-                url: 'http://192.168.2.64:5001/api/admin/schedule',
+                url: 'http://192.168.1.4:5001/api/admin/schedule',
                 page: true,
                 cols: [[
                     {title: '', width: 40, type: 'checkbox', fixed: 'left'},
@@ -161,7 +161,7 @@
         //处理更新和新增请求
         form.on('submit(schedule)', function (data) {
             $.ajax({
-                url: 'http://192.168.2.64:5001/api/admin/schedule' + (data.field.id ? '/' + data.field.id : ''),
+                url: 'http://192.168.1.4:5001/api/admin/schedule' + (data.field.id ? '/' + data.field.id : ''),
                 method: data.field.id ? 'PUT' : 'POST',
                 data: data.field,
                 dataType: 'json',
@@ -245,7 +245,7 @@
                 btn: ['确定', '取消'] //按钮
             }, function () {
                 $.ajax({
-                    url: 'http://192.168.2.64:5001/api/admin/schedule',
+                    url: 'http://192.168.1.4:5001/api/admin/schedule',
                     method: 'PUT',
                     data: {'ids': ids, 'status': 1},
                     success: function (resp) {
@@ -279,7 +279,7 @@
                 btn: ['确定', '取消'] //按钮
             }, function () {
                 $.ajax({
-                    url: 'http://192.168.2.64:5001/api/admin/schedule',
+                    url: 'http://192.168.1.4:5001/api/admin/schedule',
                     method: 'PUT',
                     data: {'ids': ids, 'status': 0},
                     success: function (resp) {
@@ -313,7 +313,7 @@
                 btn: ['确定', '取消'] //按钮
             }, function () {
                 $.ajax({
-                    url: 'http://192.168.2.64:5001/api/admin/schedule',
+                    url: 'http://192.168.1.4:5001/api/admin/schedule',
                     method: 'DELETE',
                     data: {'ids': ids},
                     success: function (resp) {
@@ -335,7 +335,7 @@
         //更新下拉选择框
         var update_select = function () {
             $.ajax({
-                url: 'http://192.168.2.64:5001/api/admin/room',
+                url: 'http://192.168.1.4:5001/api/admin/room',
                 method: 'GET',
                 success: function (resp) {
                     if (resp.code === 0) {
@@ -353,7 +353,7 @@
                 }
             });
             $.ajax({
-                url: 'http://192.168.2.64:5001/api/admin/movie',
+                url: 'http://192.168.1.4:5001/api/admin/movie',
                 method: 'GET',
                 success: function (resp) {
                     if (resp.code === 0) {

@@ -92,7 +92,7 @@
             table.render({
                 id: 'table',
                 elem: '#room-list',
-                url: 'http://192.168.2.64:5001/api/admin/room',
+                url: 'http://192.168.1.4:5001/api/admin/room',
                 page: true,
                 cols: [[
                     {title: '', width: 40, type: 'checkbox', fixed: 'left'},
@@ -142,7 +142,7 @@
         //处理更新和新增请求
         form.on('submit(room)', function (data) {
             $.ajax({
-                url: 'http://192.168.2.64:5001/api/admin/room' + (data.field.id ? '/' + data.field.id : ''),
+                url: 'http://192.168.1.4:5001/api/admin/room' + (data.field.id ? '/' + data.field.id : ''),
                 method: data.field.id ? 'PUT' : 'POST',
                 data: data.field,
                 dataType: 'json',
@@ -200,7 +200,7 @@
                 btn: ['确定', '取消'] //按钮
             }, function () {
                 $.ajax({
-                    url: 'http://192.168.2.64:5001/api/admin/room',
+                    url: 'http://192.168.1.4:5001/api/admin/room',
                     method: 'PUT',
                     data: {'ids': ids, 'status': 1},
                     success: function (resp) {
@@ -234,7 +234,7 @@
                 btn: ['确定', '取消'] //按钮
             }, function () {
                 $.ajax({
-                    url: 'http://192.168.2.64:5001/api/admin/room',
+                    url: 'http://192.168.1.4:5001/api/admin/room',
                     method: 'PUT',
                     data: {'ids': ids, 'status': 0},
                     success: function (resp) {
@@ -268,7 +268,7 @@
                 btn: ['确定', '取消'] //按钮
             }, function () {
                 $.ajax({
-                    url: 'http://192.168.2.64:5001/api/admin/room',
+                    url: 'http://192.168.1.4:5001/api/admin/room',
                     method: 'DELETE',
                     data: {'ids': ids},
                     success: function (resp) {
