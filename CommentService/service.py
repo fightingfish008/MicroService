@@ -5,10 +5,12 @@ from bson import ObjectId
 from nameko.rpc import rpc
 
 from CommentService.dbhelper import DBHelper
+from utils.dependencies import LoggingDependency
 
 
 class CommentService:
     name = 'comment'
+    log = LoggingDependency()
 
     def __init__(self):
         self.dbhelper = DBHelper()

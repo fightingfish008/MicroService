@@ -3,10 +3,12 @@ from nameko.rpc import rpc
 from pymongo.errors import DuplicateKeyError
 
 from RoomService.dbhelper import DBHelper
+from utils.dependencies import LoggingDependency
 
 
 class RoomService:
     name = "room"
+    log = LoggingDependency()
 
     def __init__(self):
         self.dbhelper = DBHelper()

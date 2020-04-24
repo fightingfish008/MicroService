@@ -2,10 +2,12 @@ from bson import ObjectId
 from nameko.rpc import rpc
 
 from PosterService.dbhelper import DBHelper
+from utils.dependencies import LoggingDependency
 
 
 class PosterService:
     name = 'poster'
+    log = LoggingDependency()
 
     def __init__(self):
         self.dbhelper = DBHelper()

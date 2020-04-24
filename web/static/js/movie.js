@@ -116,7 +116,7 @@ layui.use(['carousel', 'element', 'flow', 'rate', 'laytpl', 'form', 'layer', 'mo
                 $("#playing").show();
                 $("#upcoming").hide();
                 $.ajax({
-                    url: '/api/movie/playing',
+                    url: 'http://192.168.2.64:5001/api/movie/playing',
                     method: "GET",
                     dataType: 'json',
                     success: function (resp) {

@@ -3,10 +3,12 @@ from nameko.rpc import rpc
 
 from TagService.dbhelper import DBHelper
 from pymongo.errors import DuplicateKeyError
+from utils.dependencies import LoggingDependency
 
 
 class TagService():
     name = 'tag'
+    log = LoggingDependency()
 
     def __init__(self):
         self.dbhelper = DBHelper()

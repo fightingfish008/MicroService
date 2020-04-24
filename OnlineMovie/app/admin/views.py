@@ -5,6 +5,7 @@ from flask import request, jsonify, session
 
 import main  # from main import rpc # error
 from app.admin import admin as app
+from utils.fastdfs.fdfs_storage import save
 
 bucket_url = 'micro-1252672422.file.myqcloud.com'
 
@@ -82,11 +83,12 @@ def movie(mid=None):
         movie['status'] = int(movie['status'])
         result = main.rpc.movie.add_movie(movie)
         _id = result['id']
-        res = upload_tencent(cover, _id + '.png')
-
-        r = main.rpc.movie.update_movie(_id, {'cover': res['access_url']})
-        print(r)
-        return jsonify(result)
+        # upload_tencent(file, file_name, dir='cover'):
+        # res = upload_tencent(cover, _id + '.png')
+        buff = request.files['cover'].read()
+        res = save(buff)
+        r = main.rpc.movie.update_movie(_id, {'cover': res['Remote file_id']})
+        return jsonify(r)
     elif request.method == 'DELETE':
         _mids = request.form.get('ids', None)
         if not _mids:

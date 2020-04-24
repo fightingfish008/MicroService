@@ -3,10 +3,12 @@ from nameko.rpc import rpc
 
 from MovieService.dbhelper import DBHelper
 from pymongo.errors import DuplicateKeyError
+from utils.dependencies import LoggingDependency
 
 
 class MovieService():
     name = 'movie'
+    log = LoggingDependency()
 
     def __init__(self):
         self.dbhelper = DBHelper()

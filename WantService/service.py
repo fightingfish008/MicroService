@@ -1,10 +1,12 @@
 from nameko.rpc import rpc
 
 from SearchService.dbhelper import DBHelper
+from utils.dependencies import LoggingDependency
 
 
 class WantService:
     name = 'want'
+    log = LoggingDependency()
 
     def __init__(self):
         self.dbhelper = DBHelper()

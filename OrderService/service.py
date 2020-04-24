@@ -5,10 +5,12 @@ from nameko.rpc import rpc
 
 from OrderService.dbhelper import DBHelper
 from pymongo.errors import DuplicateKeyError
+from utils.dependencies import LoggingDependency
 
 
 class OrderService:
     name = 'order'
+    log = LoggingDependency()
 
     def __init__(self):
         self.dbhelper = DBHelper()

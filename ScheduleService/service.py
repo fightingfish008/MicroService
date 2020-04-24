@@ -5,11 +5,13 @@ from nameko.rpc import rpc
 from pymongo.errors import DuplicateKeyError
 
 from ScheduleService.dbhelper import DBHelper
+from utils.dependencies import LoggingDependency
 
 
 # 排期
 class ScheduleService:
     name = "schedule"
+    log = LoggingDependency()
 
     def __init__(self):
         self.dbhelper = DBHelper()

@@ -5,10 +5,12 @@ from bson import ObjectId
 from UserService.dbhelper import DBHelper
 from nameko.rpc import rpc
 from pymongo.errors import DuplicateKeyError
+from utils.dependencies import LoggingDependency
 
 
 class UserService:
     name = 'user'
+    log = LoggingDependency()
 
     def __init__(self):
         self.dbhelper = DBHelper()
