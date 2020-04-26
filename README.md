@@ -1,2 +1,3 @@
 # MicroService
-flask+nameko study
+flask+nameko study \
+其他：项目来源有点难找了，有点凌乱。后台管理系统已经可以了，目前还缺移动用户那块显示，需要花点时间。整理了一番，稍微做了些改动。整理来说是个不错的学习案例。
