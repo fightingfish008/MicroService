@@ -152,8 +152,8 @@ def end_time(tm, dur):
 
 from cos_lib3.cos import Cos
 
-cos = Cos(app_id=1252672422, secret_id='AKIDZw391fnGCrKWS8GgZBX7WyCBzf6IA2Yp',
-          secret_key='EF5g290f5GEvMWR6ax83h8JDrFMHwKZd', region='cd')
+cos = Cos(app_id=12345678, secret_id='xxxxxxxxx',
+          secret_key='xxxxxxxxxxxxxx', region='cd')
 bucket = cos.get_bucket("micro")
 
 

@@ -7,8 +7,6 @@ import main  # from main import rpc # error
 from app.admin import admin as app
 from utils.fastdfs.fdfs_storage import save
 
-bucket_url = 'micro-1252672422.file.myqcloud.com'
-
 
 # 登录、注册认证函数
 def authorize(func):
@@ -305,7 +303,8 @@ def poster(pid=None):
         if movie['code'] != 0:
             return jsonify({'code': -1, 'msg': '电影信息不正确！'})
         _poster = request.files.get('poster', None)
-        res = upload_tencent(_poster, mid + '.png', dir='poster')
+        # res = upload_tencent(_poster, mid + '.png', dir='poster')
+        res = dict()
         poster = {
             'movie': {
                 'id': movie['data']['id'],
@@ -422,14 +421,3 @@ def statistics():
     today = main.rpc.order.get_orders()
     pass
 
-
-from cos_lib3.cos import Cos
-
-cos = Cos(app_id=1252672422, secret_id='AKIDZw391fnGCrKWS8GgZBX7WyCBzf6IA2Yp',
-          secret_key='EF5g290f5GEvMWR6ax83h8JDrFMHwKZd', region='cd')
-bucket = cos.get_bucket("micro")
-
-
-# 上传文件到腾讯 对象存储
-def upload_tencent(file, file_name, dir='cover'):
-    return bucket.upload_file_stream(file, file_name, dir_name=dir)

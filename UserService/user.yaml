@@ -2,7 +2,7 @@
 
 AMQP_URI: 'amqp://guest:123456@47.114.57.220'
 WEB_SERVER_ADDRESS: '0.0.0.0:8001'
-rpc_exchange: 'nameko-rpc'
+rpc_exchange: 'nameko-rpc2'
 max_workers: 2
 parent_calls_tracked: 10
 

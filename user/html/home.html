@@ -128,7 +128,7 @@
             elem: '#playing-list',
             isAuto: true,
             done: function (page, next) {
-                $.get('/api/movie/playing?page=' + page, function (res) {
+                $.get('http://192.168.2.64:5001/api/movie/playing?page=' + page, function (res) {
                     if (res.code === 0) {
                         let template = movie_template.innerHTML;
                         laytpl(template).render(res.data, function (html) {
@@ -143,7 +143,7 @@
             elem: '#upcoming-list',
             isAuto: true,
             done: function (page, next) {
-                $.get('/api/movie/upcoming?page=' + page, function (res) {
+                $.get('http://192.168.2.64:5001/api/movie/upcoming?page=' + page, function (res) {
                     if (res.code === 0) {
                         let template = movie_template.innerHTML;
                         laytpl(template).render(res.data, function (html) {

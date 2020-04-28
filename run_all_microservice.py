@@ -8,16 +8,16 @@ root = Path(__file__).parent
 def run_all():
     services = {}
     for f in root.iterdir():
-        if f.is_dir() and f.name.endswith("Service"):
+        if f.is_dir() and f.name.endswith("Service") and f.name.startswith("Admin"):
             name = f.name
             service = importlib.import_module(name + '.service')
             services[name] = service
     from nameko.runners import ServiceRunner
 
-    runner = ServiceRunner(config={"AMQP_URI": "amqp://guest:xxxxxxxxx@xxxxxxxxx:5672/"})
+    runner = ServiceRunner(config={"AMQP_URI": "amqp://guest:123456@47.114.57.220"})
     for name, service in services.items():
         cls = getattr(service, name)
-        print(name,service,cls)
+        print(name,service, cls)
         runner.add_service(cls)
 
     print('wsadsa')
@@ -27,7 +27,7 @@ def run_all():
         runner.wait()
     except KeyboardInterrupt:
         runner.kill()
-    runner.stop()
+        runner.stop()
 
 
 if __name__ == '__main__':
