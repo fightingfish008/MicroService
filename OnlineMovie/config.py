@@ -1,4 +1,4 @@
-NAMEKO_AMQP_URI = "amqp://guest:123456@47.114.57.220"
+NAMEKO_AMQP_URI = "amqp://guest:123456@ip"
 
 DEBUG = False
 PORT = 5001

@@ -5,7 +5,7 @@ import sys
 
 root = Path(__file__).absolute().parent.parent
 template = '''[program:{}] 
-command=nameko run {}Service.service --broker amqp://guest:123456@47.114.57.220
+command=nameko run {}Service.service --broker amqp://guest:123456@ip
 directory=/app/MicroService             ; 执行 command 之前，先切换到工作目录
 user=wxs                                ; 使用 ubuntu 用户来启动该进程
 autorestart=true                        ; 自动重启

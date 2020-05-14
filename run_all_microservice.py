@@ -14,7 +14,7 @@ def run_all():
             services[name] = service
     from nameko.runners import ServiceRunner
 
-    runner = ServiceRunner(config={"AMQP_URI": "amqp://guest:123456@47.114.57.220"})
+    runner = ServiceRunner(config={"AMQP_URI": "amqp://guest:123456@ip"})
     for name, service in services.items():
         cls = getattr(service, name)
         print(name,service, cls)

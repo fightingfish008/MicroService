@@ -1,5 +1,5 @@
 DATABASE = {
-    'host': '47.114.57.220',
+    'host': 'ip',
     'port': '6020',
     'user': 'huyutest',
     'password': 'huyu123456',

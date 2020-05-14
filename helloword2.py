@@ -1,4 +1,4 @@
-config = {'AMQP_URI': "amqp://guest:123456@47.114.57.220"}
+config = {'AMQP_URI': "amqp://guest:123456@ip"}
 from nameko.standalone.rpc import ClusterRpcProxy
 with ClusterRpcProxy(config) as rpc:
     # result = rpc.sender_service.dispatch_method("world")
